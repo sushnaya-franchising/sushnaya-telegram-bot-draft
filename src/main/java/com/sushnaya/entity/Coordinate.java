@@ -27,7 +27,6 @@ public class Coordinate {
         this.latitude = latitude;
     }
 
-    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Coordinate)) return false;
@@ -36,8 +35,13 @@ public class Coordinate {
                 Float.compare(that.getLatitude(), getLatitude()) == 0;
     }
 
-    @Override
     public int hashCode() {
         return Objects.hash(getLongitude(), getLatitude());
+    }
+
+    public static Coordinate parse(String point) {
+        String[] coordinate = point.split("\\s", 2);
+
+        return new Coordinate(Float.parseFloat(coordinate[0]), Float.parseFloat(coordinate[1]));
     }
 }

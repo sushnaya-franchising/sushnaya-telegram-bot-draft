@@ -1,7 +1,8 @@
 package com.sushnaya;
 
-import com.sushnaya.telegrambot.SushnayaBot;
 import com.sushnaya.imageserver.ImageHttpServer;
+import com.sushnaya.telegrambot.Command;
+import com.sushnaya.telegrambot.SushnayaBot;
 import io.netty.channel.ChannelFuture;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.TelegramBotsApi;

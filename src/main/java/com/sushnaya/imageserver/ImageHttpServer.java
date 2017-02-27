@@ -14,7 +14,6 @@ import io.netty.handler.logging.LoggingHandler;
 import java.net.InetSocketAddress;
 
 public class ImageHttpServer {
-
     private final EventLoopGroup parentGroup = new NioEventLoopGroup(1);
     private final EventLoopGroup childGroup = new NioEventLoopGroup(1);
     private Channel channel;

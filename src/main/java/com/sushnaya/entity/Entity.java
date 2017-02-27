@@ -4,6 +4,7 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class Entity {
+    // todo: storage must generate id (and persist id-generator state in optimized version)
     private static AtomicInteger ID_GENERATOR = new AtomicInteger();
 
     private int id;

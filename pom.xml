@@ -18,6 +18,7 @@
         <telegrambots.version>2.4.4.4</telegrambots.version>
         <junit.version>3.8.1</junit.version>
         <zero-allocation-hashing.version>0.6</zero-allocation-hashing.version>
+        <jackson-dataformat-csv.version>2.7.0</jackson-dataformat-csv.version>
     </properties>
 
     <dependencies>
@@ -48,6 +49,11 @@
             <artifactId>zero-allocation-hashing</artifactId>
             <version>${zero-allocation-hashing.version}</version>
         </dependency>
+        <!--<dependency>-->
+            <!--<groupId>com.fasterxml.jackson.dataformat</groupId>-->
+            <!--<artifactId>jackson-dataformat-csv</artifactId>-->
+            <!--<version>${jackson-dataformat-csv.version}</version>-->
+        <!--</dependency>-->
     </dependencies>
 
     <build>

@@ -5,32 +5,38 @@ import com.google.common.collect.Lists;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 public class Menu extends Entity {
-    private int cityId;
+    private Locality locality;
     private List<MenuCategory> menuCategories;
 
-    public Menu(int cityId) {
-        this.cityId = cityId;
+    public Menu() {
     }
 
-    public int getCityId() {
-        return cityId;
+    public Menu(Locality locality,MenuCategory menuCategory) {
+        this(locality, Lists.newArrayList(menuCategory));
+    }
+
+    public Menu(Locality locality, List<MenuCategory> menuCategories) {
+        this.locality = locality;
+        menuCategories.forEach(c -> c.setMenu(this));
+        this.menuCategories = menuCategories;
     }
 
     public void addCategory(MenuCategory category) {
-        if(menuCategories == null) menuCategories = Lists.newLinkedList();
+        if (menuCategories == null) menuCategories = Lists.newLinkedList();
 
         menuCategories.add(category);
     }
 
     public void removeCategory(int menuCategoryId) {
-        if(menuCategories == null || menuCategories.isEmpty()) return;
+        if (menuCategories == null || menuCategories.isEmpty()) return;
 
         Iterator<MenuCategory> iterator = menuCategories.iterator();
         while (iterator.hasNext()) {
             MenuCategory category = iterator.next();
-            if(category.getId() == menuCategoryId) {
+            if (category.getId() == menuCategoryId) {
                 iterator.remove();
                 return;
             }
@@ -39,5 +45,32 @@ public class Menu extends Entity {
 
     public List<MenuCategory> getMenuCategories() {
         return Collections.unmodifiableList(menuCategories);
+    }
+
+    public MenuCategory getFirstCategory() {
+        return getMenuCategories().get(0);
+    }
+
+    public Locality getLocality() {
+        return locality;
+    }
+
+    public void setLocality(Locality locality) {
+        this.locality = locality;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Menu)) return false;
+        if (!super.equals(o)) return false;
+        Menu menu = (Menu) o;
+        return Objects.equals(getLocality(), menu.getLocality()) &&
+                Objects.equals(getMenuCategories(), menu.getMenuCategories());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), getLocality(), getMenuCategories());
     }
 }
