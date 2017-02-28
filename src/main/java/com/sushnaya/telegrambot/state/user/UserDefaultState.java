@@ -1,13 +1,16 @@
 package com.sushnaya.telegrambot.state.user;
 
-import com.sushnaya.telegrambot.DefaultKeyboardMarkupFactory;
-import com.sushnaya.telegrambot.KeyboardMarkupFactory;
-import com.sushnaya.telegrambot.Messages;
-import com.sushnaya.telegrambot.SushnayaBot;
+import com.sushnaya.entity.Menu;
+import com.sushnaya.entity.User;
+import com.sushnaya.telegrambot.*;
 import com.sushnaya.telegrambot.state.BotState;
 import org.telegram.telegrambots.api.objects.Update;
+import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
+
+import java.util.List;
 
 import static com.sushnaya.telegrambot.Command.*;
+import static com.sushnaya.telegrambot.util.UpdateUtil.getTelegramUserId;
 
 public class UserDefaultState extends BotState {
     public static final Messages MESSAGES = Messages.getDefaultMessages();
@@ -17,14 +20,6 @@ public class UserDefaultState extends BotState {
         super(bot);
     }
 
-    protected boolean isSkippable() {
-        return false;
-    }
-
-    protected boolean isCancellable() {
-        return false;
-    }
-
     public KeyboardMarkupFactory getKeyboardMarkupFactory() {
         return keyboardMarkupFactory;
     }
@@ -32,31 +27,68 @@ public class UserDefaultState extends BotState {
     public void start(Update update) {
         bot.say(update, getGreetingMessageText(), true);
 
-        home(update);
+        menu(update);
     }
 
     protected String getGreetingMessageText() {
         return MESSAGES.greeting();
     }
 
-    public void home(Update update) {
-        if (!bot.hasPublishedProducts()) {
-            bot.say(update, getHomeMessageText(), true);
-            return;
-        }
+    public void menu(Update update) {
+        final User user = bot.getDataStorage().getUserByTelegramId(
+                getTelegramUserId(update));
+        assert user != null;
 
-        if (update.hasCallbackQuery()) {
-            bot.edit(update, getHomeMessageText(), getKeyboardMarkupFactory().homeMarkup());
+        handleIfMenuIsSelected(update, user);
+
+        final Menu selectedMenu = user.getSelectedMenu();
+
+        if (selectedMenu != null && bot.hasPublishedProducts(selectedMenu.getId())) {
+            revealMenu(update, selectedMenu);
 
         } else {
-            bot.say(update, getHomeMessageText(), getKeyboardMarkupFactory().homeMarkup());
+            revealMenus(update);
         }
     }
 
-    protected String getHomeMessageText() {
-        return bot.hasProducts() ?
-                MESSAGES.userHomeDefaultMessage() :
-                MESSAGES.userHomeNoProductsMessage();
+    private void handleIfMenuIsSelected(Update update, User user) {
+        final Integer menuId = Command.parseId(update);
+        if (menuId != null) {
+            final Menu menu = bot.getDataStorage().getMenu(menuId);
+            user.setSelectedMenu(menu);
+            bot.getDataStorage().saveUser(user);
+        }
+    }
+
+    private void revealMenu(Update update, Menu menu) {
+        final InlineKeyboardMarkup keyboardMarkup =
+                getKeyboardMarkupFactory().menuMarkup(menu.getMenuCategories());
+
+        say(update, MESSAGES.userMenuDefaultMessage(), keyboardMarkup);
+    }
+
+    private void revealMenus(Update update) {
+        List<Menu> menus = bot.getMenusWithPublishedProducts();
+
+        if (menus == null || menus.isEmpty()) {
+            bot.say(update, MESSAGES.userMenuNoProductsMessage(), true);
+
+        } else if (menus.size() == 1) {
+            revealMenu(update, menus.get(0));
+
+        } else {
+            say(update, MESSAGES.selectLocality(),
+                    getKeyboardMarkupFactory().menusMarkup(menus));
+        }
+    }
+
+    private void say(Update update, String message, InlineKeyboardMarkup keyboardMarkup) {
+        if (update.hasCallbackQuery()) {
+            bot.edit(update, message, keyboardMarkup);
+
+        } else {
+            bot.say(update, message, keyboardMarkup);
+        }
     }
 
     public void help(Update update) {
@@ -64,10 +96,6 @@ public class UserDefaultState extends BotState {
     }
 
     protected String getHelpMessageText() {
-        return MESSAGES.userHelp(HOME, HELP, SKIP, CANCEL);
-    }
-
-    protected void handleUpdate(Update update) {
-        bot.say(update, MESSAGES.userUnknownCommand(HELP));
+        return MESSAGES.userHelp(MENU, HELP, SKIP, CANCEL);
     }
 }

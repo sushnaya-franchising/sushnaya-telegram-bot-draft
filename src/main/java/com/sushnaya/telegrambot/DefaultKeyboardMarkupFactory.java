@@ -1,34 +1,54 @@
 package com.sushnaya.telegrambot;
 
 import com.google.common.collect.Lists;
+import com.sushnaya.entity.Menu;
 import com.sushnaya.entity.MenuCategory;
-import org.apache.commons.lang3.StringUtils;
 import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
 import java.util.List;
 
+import static com.sushnaya.telegrambot.Command.CATEGORY;
 import static com.sushnaya.telegrambot.Command.MENU;
-import static com.sushnaya.telegrambot.Command.SEARCH;
 
 public class DefaultKeyboardMarkupFactory implements KeyboardMarkupFactory {
 
-    public InlineKeyboardMarkup homeMarkup() {
-        final InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
-        List<List<InlineKeyboardButton>> keyboard = Lists.newArrayList();
-        List<InlineKeyboardButton> row = Lists.newArrayList(
-                new InlineKeyboardButton().setText(MENU.getText())
-                        .setCallbackData(MENU.getUri()),
-                new InlineKeyboardButton().setText(SEARCH.getText())
-                        .setSwitchInlineQueryCurrentChat(StringUtils.EMPTY)
-        );
-        keyboard.add(row);
-        markup.setKeyboard(keyboard);
+    public InlineKeyboardMarkup menuMarkup(List<MenuCategory> categories) {
+        final List<List<InlineKeyboardButton>> keyboard = Lists.newArrayList();
+        List<InlineKeyboardButton> row = null;
+        for (int i = 0; i < categories.size(); i++) {
+            if (i % 2 == 0) {
+                if (row != null) keyboard.add(row);
+                row = Lists.newArrayList();
+            }
 
-        return markup;
+            MenuCategory c = categories.get(i);
+            row.add(new InlineKeyboardButton().setText(c.getDisplayName())
+                    .setCallbackData(CATEGORY.getUriForId(c.getId())));
+        }
+        keyboard.add(row);
+
+        // todo: add search button
+
+        return new InlineKeyboardMarkup().setKeyboard(keyboard);
     }
 
-    public InlineKeyboardMarkup categoriesMarkup(List<MenuCategory> categories) {
-        return null;
+    @Override
+    public InlineKeyboardMarkup menusMarkup(List<Menu> menus) {
+        final List<List<InlineKeyboardButton>> keyboard = Lists.newArrayList();
+        List<InlineKeyboardButton> row = null;
+        for (int i = 0; i < menus.size(); i++) {
+            if (i % 2 == 0) {
+                if (row != null) keyboard.add(row);
+                row = Lists.newArrayList();
+            }
+
+            Menu menu = menus.get(i);
+            row.add(new InlineKeyboardButton().setText(menu.getLocality().getName())
+                    .setCallbackData(MENU.getUriForId(menu.getId())));
+        }
+        keyboard.add(row);
+
+        return new InlineKeyboardMarkup().setKeyboard(keyboard);
     }
 }

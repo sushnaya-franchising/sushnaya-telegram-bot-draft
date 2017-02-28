@@ -12,6 +12,7 @@ public class User extends Entity {
     private String lastName;
     private String phoneNumber;
     private Role role;
+    private Menu selectedMenu;
 
     public User(String firstName, String lastName, Integer telegramId, String telegramUsername, String phoneNumber) {
         this(firstName, lastName, telegramId, telegramUsername, phoneNumber, USER);
@@ -36,6 +37,18 @@ public class User extends Entity {
 
     public void setTelegramId(int telegramId) {
         this.telegramId = telegramId;
+    }
+
+    public Menu getSelectedMenu() {
+        return selectedMenu;
+    }
+
+    public boolean didSelectMenu() {
+        return selectedMenu != null;
+    }
+
+    public void setSelectedMenu(Menu selectedMenu) {
+        this.selectedMenu = selectedMenu;
     }
 
     public void setTelegramUsername(String telegramUsername) {

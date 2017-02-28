@@ -1,6 +1,7 @@
 package com.sushnaya.telegrambot;
 
 import com.sushnaya.entity.Locality;
+import com.sushnaya.entity.Menu;
 import com.sushnaya.entity.MenuCategory;
 import com.sushnaya.telegrambot.util.UTF8Control;
 
@@ -28,6 +29,9 @@ public class Messages {
     private final MessageFormat userUnknownCommandFormat;
     private final MessageFormat dashboardDefaultMessageFormat;
     private final MessageFormat menuCreationIsCancelledFormat;
+    private final MessageFormat menuCreationIsInterruptedFormat;
+    private final MessageFormat menuCreationIsSuccessfulFormat;
+    private final MessageFormat categoryCreationIsSuccessfulFormat;
 
     public static Messages getDefaultMessages() {
         if (DEFAULT_MESSAGES == null) {
@@ -81,7 +85,13 @@ public class Messages {
         dashboardDefaultMessageFormat = new MessageFormat(
                 messages.getString("admin.dashboard.default_message"), locale);
         menuCreationIsCancelledFormat = new MessageFormat(
-                messages.getString("menu_creation_is_cancelled"), locale);
+                messages.getString("menu_creation.cancelled"), locale);
+        menuCreationIsInterruptedFormat = new MessageFormat(
+                messages.getString("menu_creation.interrupted"), locale);
+        menuCreationIsSuccessfulFormat = new MessageFormat(
+                messages.getString("menu_creation.successful"), locale);
+        categoryCreationIsSuccessfulFormat = new MessageFormat(
+                messages.getString("category_creation.successful"), locale);
     }
 
     public String askProductPriceForProductCreation() {
@@ -128,8 +138,8 @@ public class Messages {
         return messages.getString("continue");
     }
 
-    public String backToHome() {
-        return messages.getString("back_to_home");
+    public String backToMenu() {
+        return messages.getString("back_to_menu");
     }
 
     public String backToDashboard() {
@@ -204,13 +214,9 @@ public class Messages {
         return messages.getString("create_product_in_menu");
     }
 
-    public String createProductInCategory(MenuCategory category) {
-        Object[] args = {category.getDisplayName()};
+    public String createProductInCategory(String categoryDisplayName) {
+        Object[] args = {categoryDisplayName};
         return createProductInCategoryFormat.format(args);
-    }
-
-    public String createProductInCurrentCategory() {
-        return messages.getString("create_product_in_current_category");
     }
 
     public String askLocalityHelp() {
@@ -348,17 +354,17 @@ public class Messages {
         return messages.getString("greeting");
     }
 
-    public String userHomeDefaultMessage() {
-        return messages.getString("user.home.default_message");
+    public String userMenuDefaultMessage() {
+        return messages.getString("user.menu.default_message");
     }
 
-    public String userHomeNoProductsMessage() {
-        return messages.getString("user.home.no_products_message");
+    public String userMenuNoProductsMessage() {
+        return messages.getString("user.menu.no_products_message");
     }
 
-    public String userHelp(Command homeCommand, Command helpCommand,
+    public String userHelp(Command menuCommand, Command helpCommand,
                            Command skipCommand, Command cancelCommand) {
-        Object[] args = {homeCommand.getUri(), helpCommand.getUri(), skipCommand.getUri(), cancelCommand.getUri()};
+        Object[] args = {menuCommand.getUri(), helpCommand.getUri(), skipCommand.getUri(), cancelCommand.getUri()};
         return userHelpFormat.format(args);
     }
 
@@ -383,6 +389,7 @@ public class Messages {
         return messages.getString("registration_successful");
     }
 
+    // todo: support plural forms
     public String dashboardDefaultMessage(double todayRevenue, int todayOrdersCount,
                                           double yesterdayRevenue, int yesterdayOrdersCount,
                                           double lastSevenDaysRevenue, int lastSevenDaysOrdersCount) {
@@ -444,5 +451,32 @@ public class Messages {
 
     public String gettingPhotoFilepathError() {
         return messages.getString("ask_photo_get_file_path_error");
+    }
+
+    public String closeDashboard() {
+        return messages.getString("close_dashboard");
+    }
+
+    public String menuCreationIsInterrupted(Command helpCommand) {
+        Object[] args = {helpCommand.getUri()};
+        return menuCreationIsInterruptedFormat.format(args);
+    }
+
+    public String menuCreationIsSuccessful(Menu menu) {
+        Object[] args = {menu.getLocality().getDisplayName()};
+        return menuCreationIsSuccessfulFormat.format(args);
+    }
+
+    public String proposeFurtherCommandsForMenuCreation() {
+        return messages.getString("menu_creation.propose_further_commands");
+    }
+
+    public String categoryCreationIsSuccessful(MenuCategory category) {
+        Object[] args = {category.getDisplayName()};
+        return categoryCreationIsSuccessfulFormat.format(args);
+    }
+
+    public String selectLocality() {
+        return messages.getString("select_locality");
     }
 }

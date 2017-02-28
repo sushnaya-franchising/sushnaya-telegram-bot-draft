@@ -3,6 +3,7 @@ package com.sushnaya.telegrambot;
 import com.google.common.collect.Maps;
 import com.sushnaya.entity.Coordinate;
 import com.sushnaya.entity.Locality;
+import com.sushnaya.entity.Menu;
 import com.sushnaya.entity.User;
 import com.sushnaya.telegrambot.state.BotState;
 import com.sushnaya.telegrambot.state.admin.AdminDefaultState;
@@ -26,15 +27,18 @@ import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
+import static com.sushnaya.telegrambot.Command.HELP;
 import static com.sushnaya.telegrambot.KeyboardMarkupFactory.REPLY_KEYBOARD_REMOVE;
 import static com.sushnaya.telegrambot.util.UpdateUtil.*;
 
 public class SushnayaBot extends TelegramLongPollingBot {
     private static final Map<Integer, BotState> STATES_BY_USER_ID = Maps.newHashMap();
+    public static final Messages MESSAGES = Messages.getDefaultMessages();
     private final String token;
     private final HttpClient httpClient;
     private final DataStorage dataStorage;
@@ -59,7 +63,7 @@ public class SushnayaBot extends TelegramLongPollingBot {
     }
 
     public UnregisteredUserState setUnregisteredState(Update update) {
-        return setUnregisteredState(getUserId(update));
+        return setUnregisteredState(getTelegramUserId(update));
     }
 
     public UnregisteredUserState setUnregisteredState(int userId) {
@@ -68,7 +72,7 @@ public class SushnayaBot extends TelegramLongPollingBot {
     }
 
     public UserDefaultState setUserDefaultState(Update update) {
-        return setUserDefaultState(getUserId(update));
+        return setUserDefaultState(getTelegramUserId(update));
     }
 
     public UserDefaultState setUserDefaultState(int userId) {
@@ -77,7 +81,7 @@ public class SushnayaBot extends TelegramLongPollingBot {
     }
 
     public AdminDefaultState setAdminDefaultState(Update update) {
-        return setAdminDefaultState(getUserId(update));
+        return setAdminDefaultState(getTelegramUserId(update));
     }
 
     public AdminDefaultState setAdminDefaultState(int userId) {
@@ -86,7 +90,7 @@ public class SushnayaBot extends TelegramLongPollingBot {
     }
 
     public void setState(Update update, BotState state) {
-        setState(getUserId(update), state);
+        setState(getTelegramUserId(update), state);
     }
 
     public void setState(int userId, BotState state) {
@@ -96,7 +100,7 @@ public class SushnayaBot extends TelegramLongPollingBot {
     public boolean isRegistered(Integer userId) {
         if (userId == null) return false;
 
-        User user = dataStorage.getUser(userId);
+        User user = dataStorage.getUserByTelegramId(userId);
         return user != null && user.getTelegramId() != null;
     }
 
@@ -131,11 +135,13 @@ public class SushnayaBot extends TelegramLongPollingBot {
     }
 
     public void onUpdateReceived(Update update) {
-        Integer userId = getUserId(update);
+        Integer userId = getTelegramUserId(update);
 
         if (userId == null) return;
 
-        ensureBotState(userId).handle(update);
+        if (!ensureBotState(userId).handle(update)) {
+            say(update, MESSAGES.userUnknownCommand(HELP));
+        }
     }
 
     private BotState ensureBotState(Integer userId) {
@@ -165,7 +171,7 @@ public class SushnayaBot extends TelegramLongPollingBot {
     }
 
     public KeyboardMarkupFactory getKeyboardMarkupFactory(Update update) {
-        return getKeyboardMarkupFactory(UpdateUtil.getUserId(update));
+        return getKeyboardMarkupFactory(UpdateUtil.getTelegramUserId(update));
     }
 
     public KeyboardMarkupFactory getKeyboardMarkupFactory(Integer userId) {
@@ -234,5 +240,13 @@ public class SushnayaBot extends TelegramLongPollingBot {
 
     public boolean hasPublishedProducts() {
         return getDataStorage().hasPublishedProducts();
+    }
+
+    public boolean hasPublishedProducts(int menuId) {
+        return getDataStorage().hasPublishedProducts(menuId);
+    }
+
+    public List<Menu> getMenusWithPublishedProducts() {
+        return getDataStorage().getMenusWithPublishedProducts();
     }
 }

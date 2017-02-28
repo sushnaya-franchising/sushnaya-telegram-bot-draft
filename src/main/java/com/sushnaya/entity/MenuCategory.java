@@ -76,6 +76,10 @@ public class MenuCategory extends Entity {
         return Collections.unmodifiableList(products);
     }
 
+    public boolean hasProducts() {
+        return products != null && !products.isEmpty();
+    }
+
     public Product getFirstProduct() {
         return getProducts().get(0);
     }

@@ -1,6 +1,7 @@
 package com.sushnaya.telegrambot;
 
 import com.google.common.collect.Lists;
+import com.sushnaya.entity.Menu;
 import com.sushnaya.entity.MenuCategory;
 import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboard;
@@ -28,12 +29,12 @@ public class UnregisteredKeyboardMarkupFactory implements KeyboardMarkupFactory 
                 .setOneTimeKeyboad(true);
     }
 
-    public InlineKeyboardMarkup homeMarkup() {
+    public InlineKeyboardMarkup menuMarkup(List<MenuCategory> categories) {
         return null;
     }
 
     @Override
-    public InlineKeyboardMarkup categoriesMarkup(List<MenuCategory> categories) {
+    public InlineKeyboardMarkup menusMarkup(List<Menu> menus) {
         return null;
     }
 }

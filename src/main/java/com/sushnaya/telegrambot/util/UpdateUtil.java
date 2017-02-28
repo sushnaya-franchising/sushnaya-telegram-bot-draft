@@ -10,7 +10,6 @@ import java.util.List;
 
 public class UpdateUtil {
     private UpdateUtil() {
-
     }
 
     public static boolean isTextMessage(Update update) {
@@ -49,8 +48,9 @@ public class UpdateUtil {
         return from;
     }
 
-    public static Integer getUserId(Update update) {
+    public static Integer getTelegramUserId(Update update) {
         User from = getFrom(update);
+
         return from != null ? from.getId() : null;
     }
 

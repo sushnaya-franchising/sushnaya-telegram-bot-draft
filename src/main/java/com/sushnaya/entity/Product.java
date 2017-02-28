@@ -20,16 +20,20 @@ public class Product extends Entity {
     private boolean isPublished;
 
     public Product() {
-
     }
 
     public Product(String name) {
         this.name = name;
     }
 
-    public Product(String name, Double price, MenuCategory menuCategory) {
+    public Product(String name, Double price, boolean isPublished) {
+        this(name, price, isPublished, null);
+    }
+
+    public Product(String name, Double price, boolean isPublished, MenuCategory menuCategory) {
         this.name = name;
         this.price = price;
+        this.isPublished = isPublished;
         this.menuCategory = menuCategory;
     }
 

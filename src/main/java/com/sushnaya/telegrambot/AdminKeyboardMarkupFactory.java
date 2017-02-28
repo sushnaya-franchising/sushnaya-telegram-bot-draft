@@ -24,7 +24,11 @@ public interface AdminKeyboardMarkupFactory extends KeyboardMarkupFactory {
 
     InlineKeyboardMarkup editMenuMarkup(Menu menu);
 
-    InlineKeyboardMarkup proposalToAddOneMoreProductMarkup(MenuCategory category);
+    default InlineKeyboardMarkup menuCreationFurtherCommands(Menu menu) {
+        return menuCreationFurtherCommands(menu, null);
+    }
+
+    InlineKeyboardMarkup menuCreationFurtherCommands(Menu menu, MenuCategory categoryToCreateProductIn);
 
     InlineKeyboardMarkup editMenus(List<Menu> menus);
 

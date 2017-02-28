@@ -1,5 +1,6 @@
 package com.sushnaya.telegrambot;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.sushnaya.entity.*;
@@ -15,7 +16,7 @@ public class DataStorage {
     private volatile static DataStorage INSTANCE;
 
     private static final Map<Integer, User> ADMINS_BY_ID = Maps.newHashMap();
-    private static final Map<Integer, User> USERS_BY_ID = Maps.newHashMap();
+    private static final Map<Integer, User> USERS_BY_TELEGRAM_ID = Maps.newHashMap();
     private static final Map<Integer, Menu> MENUS_BY_ID = Maps.newHashMap();
     private static final Map<Integer, MenuCategory> MENU_CATEGORIES_BY_ID = Maps.newHashMap();
     private static final Map<Integer, List<MenuCategory>> MENU_CATEGORIES_BY_MENU_ID = Maps.newHashMap();
@@ -42,10 +43,46 @@ public class DataStorage {
                 "+79997901088", ADMIN);
 
         saveUser(igorkurylenko);
+
+        Menu moscowMenu = new Menu(new Locality("Москва", "Россия",
+                new Coordinate(55.7558f, 37.6173f)));
+        MenuCategory rolls = new MenuCategory("роллы");
+        Product philadelphia = new Product("филадельфия", 350.0, true);
+        Product california = new Product("калифорния", 390.0, true);
+        rolls.addProduct(philadelphia);
+        rolls.addProduct(california);
+        MenuCategory sets = new MenuCategory("сеты");
+        Product setNumberOne = new Product("Сет № 1", 2179.0, true);
+        Product setNumberTwo = new Product("Сет № 2", 689.0, true);
+        sets.addProduct(setNumberOne);
+        sets.addProduct(setNumberTwo);
+        moscowMenu.addCategory(rolls);
+        moscowMenu.addCategory(sets);
+
+        Menu peterMenu = new Menu(new Locality("Питер", "Россия",
+                new Coordinate(59.9343f, 30.3351f)));
+        rolls = new MenuCategory("роллы");
+        philadelphia = new Product("филадельфия", 250.0, true);
+        california = new Product("калифорния", 290.0, true);
+        rolls.addProduct(philadelphia);
+        rolls.addProduct(california);
+        sets = new MenuCategory("сеты");
+        setNumberOne = new Product("Сет № 1", 1900.0, true);
+        setNumberTwo = new Product("Сет № 2", 600.0, true);
+        sets.addProduct(setNumberOne);
+        sets.addProduct(setNumberTwo);
+        peterMenu.addCategory(rolls);
+        peterMenu.addCategory(sets);
+
+        saveMenu(moscowMenu);
+//        saveMenu(peterMenu);
+
     }
 
-    public User getUser(int userId) {
-        return USERS_BY_ID.get(userId);
+    public User getUserByTelegramId(Integer telegramId) {
+        if (telegramId == null) return null;
+
+        return USERS_BY_TELEGRAM_ID.get(telegramId);
     }
 
     public User getAdmin(int userId) {
@@ -60,7 +97,7 @@ public class DataStorage {
         // todo: merge if already signed up with digits
         if (user == null) return;
 
-        USERS_BY_ID.put(user.getTelegramId(), user);
+        USERS_BY_TELEGRAM_ID.put(user.getTelegramId(), user);
 
         if (user.getRole().equals(Role.ADMIN) ||
                 user.getRole().equals(Role.MODERATOR)) {
@@ -83,7 +120,7 @@ public class DataStorage {
     }
 
     public Collection<User> getUsers() {
-        return Collections.unmodifiableCollection(USERS_BY_ID.values());
+        return Collections.unmodifiableCollection(USERS_BY_TELEGRAM_ID.values());
     }
 
     public Collection<DeliveryZone> getDeliveryZones() {
@@ -128,7 +165,7 @@ public class DataStorage {
     public void saveCategory(MenuCategory category) {
         MENU_CATEGORIES_BY_ID.put(category.getId(), category);
 
-        category.getProducts().forEach(this::saveProduct);
+        if (category.hasProducts()) category.getProducts().forEach(this::saveProduct);
     }
 
     public MenuCategory getMenuCategory(int id) {
@@ -139,15 +176,28 @@ public class DataStorage {
         PRODUCTS_BY_ID.put(product.getId(), product);
     }
 
-    public Menu getMenu(int id) {
+    public Menu getMenu(Integer id) {
+        if (id == null) return null;
+
         return MENUS_BY_ID.get(id);
     }
 
     public boolean hasPublishedProducts() {
-        if(!hasProducts()) return false;
+        if (!hasProducts()) return false;
 
         for (Product product : getProducts()) {
             if (product.isPublished()) return true;
+        }
+
+        return false;
+    }
+
+    public boolean hasPublishedProducts(int menuId) {
+        if (!hasProducts()) return false;
+
+        for (Product product : getProducts()) {
+            if (product.getMenuCategory().getMenu().getId() == menuId && product.isPublished())
+                return true;
         }
 
         return false;
@@ -179,5 +229,18 @@ public class DataStorage {
 
     public int getYesterdayOrdersCount() {
         return 0;
+    }
+
+    public List<Menu> getMenusWithPublishedProducts() {
+        final List<Menu> result = Lists.newArrayList();
+        final List<Menu> menus = getMenus();
+
+        for (Menu menu : menus) {
+            if (hasPublishedProducts(menu.getId())) {
+                result.add(menu);
+            }
+        }
+
+        return result;
     }
 }

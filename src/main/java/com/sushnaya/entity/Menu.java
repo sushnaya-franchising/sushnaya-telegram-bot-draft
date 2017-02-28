@@ -14,18 +14,20 @@ public class Menu extends Entity {
     public Menu() {
     }
 
-    public Menu(Locality locality,MenuCategory menuCategory) {
-        this(locality, Lists.newArrayList(menuCategory));
-    }
-
-    public Menu(Locality locality, List<MenuCategory> menuCategories) {
+    public Menu(Locality locality, MenuCategory... menuCategories) {
         this.locality = locality;
-        menuCategories.forEach(c -> c.setMenu(this));
-        this.menuCategories = menuCategories;
+
+        if (menuCategories != null) {
+            for (MenuCategory menuCategory : menuCategories) {
+                addCategory(menuCategory);
+            }
+        }
     }
 
     public void addCategory(MenuCategory category) {
         if (menuCategories == null) menuCategories = Lists.newLinkedList();
+
+        category.setMenu(this);
 
         menuCategories.add(category);
     }

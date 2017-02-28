@@ -1,9 +1,9 @@
 package com.sushnaya.telegrambot.state;
 
+import com.sushnaya.telegrambot.Command;
 import com.sushnaya.telegrambot.KeyboardMarkupFactory;
 import com.sushnaya.telegrambot.Messages;
 import com.sushnaya.telegrambot.SushnayaBot;
-import com.sushnaya.telegrambot.Command;
 import org.telegram.telegrambots.api.objects.Update;
 
 public abstract class BotState {
@@ -14,76 +14,50 @@ public abstract class BotState {
         this.bot = bot;
     }
 
-    protected abstract boolean isSkippable();
-
-    protected abstract boolean isCancellable();
-
-    public final void handle(Update update) {
-        switch (Command.parse(update)) {
+    public boolean handle(Update update) {
+        switch (Command.parseCommand(update)) {
             case START:
-                if (isCancellable()) cancel(update);
                 start(update);
-                break;
-            case HOME:
-                if (isCancellable()) cancel(update);
-                home(update);
-                break;
+                return true;
+            case MENU:
+            case BACK_TO_MENU:
+                menu(update);
+                return true;
             case HELP:
                 help(update);
-                break;
+                return true;
             case SKIP:
-                handleSkip(update);
-                break;
+                skip(update);
+                return true;
             case CANCEL:
-                handleCancel(update);
-                break;
+                cancel(update);
+                return true;
             default:
-                handleUpdate(update);
-                break;
+                return false;
         }
-    }
-
-    private void handleCancel(Update update) {
-        if (isCancellable()) {
-            cancel(update);
-
-        } else {
-            nothingToCancel(update);
-        }
-    }
-
-    protected void nothingToCancel(Update update) {
-        bot.say(update, MESSAGES.nothingToCancel());
-    }
-
-    private void handleSkip(Update update) {
-        if (isSkippable()) {
-            skip(update);
-
-        } else {
-            nothingToSkip(update);
-        }
-    }
-
-    protected void nothingToSkip(Update update) {
-        bot.say(update, MESSAGES.nothingToSkip());
     }
 
     public abstract void start(Update update);
 
-    public abstract void home(Update update);
+    public abstract void menu(Update update);
 
     public abstract void help(Update update);
 
     public void skip(Update update) {
-        throw new UnsupportedOperationException();
+        sayNothingToSkip(update);
+    }
+
+    private void sayNothingToSkip(Update update) {
+        bot.say(update, MESSAGES.nothingToSkip());
     }
 
     public void cancel(Update update) {
-        throw new UnsupportedOperationException();
+        sayNothingToCancel(update);
     }
 
-    protected abstract void handleUpdate(Update update);
+    private void sayNothingToCancel(Update update) {
+        bot.say(update, MESSAGES.nothingToCancel());
+    }
 
     public abstract KeyboardMarkupFactory getKeyboardMarkupFactory();
 }

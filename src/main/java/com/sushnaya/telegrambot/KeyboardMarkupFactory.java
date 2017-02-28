@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import com.sushnaya.entity.Menu;
 import com.sushnaya.entity.MenuCategory;
 import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardRemove;
 import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardRow;
@@ -15,9 +14,7 @@ public interface KeyboardMarkupFactory {
 
     ReplyKeyboardRemove REPLY_KEYBOARD_REMOVE = new ReplyKeyboardRemove();
 
-    InlineKeyboardMarkup homeMarkup();
-
-    InlineKeyboardMarkup categoriesMarkup(List<MenuCategory> categories);
+    InlineKeyboardMarkup menuMarkup(List<MenuCategory> categories);
 
     default ReplyKeyboardMarkup oneButtonOneTimeReplyMarkup(String label) {
         final List<KeyboardRow> keyboard = Lists.newArrayList();
@@ -30,4 +27,6 @@ public interface KeyboardMarkupFactory {
                 .setResizeKeyboard(true)
                 .setOneTimeKeyboad(true);
     }
+
+    InlineKeyboardMarkup menusMarkup(List<Menu> menus);
 }

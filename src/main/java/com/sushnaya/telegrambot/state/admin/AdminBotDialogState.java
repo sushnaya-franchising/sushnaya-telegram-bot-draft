@@ -1,8 +1,8 @@
 package com.sushnaya.telegrambot.state.admin;
 
 import com.google.common.collect.Maps;
-import com.sushnaya.telegrambot.SushnayaBot;
 import com.sushnaya.telegrambot.Command;
+import com.sushnaya.telegrambot.SushnayaBot;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboard;
 
@@ -10,8 +10,8 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-import static com.sushnaya.telegrambot.KeyboardMarkupFactory.REPLY_KEYBOARD_REMOVE;
 import static com.sushnaya.telegrambot.Command.HELP;
+import static com.sushnaya.telegrambot.KeyboardMarkupFactory.REPLY_KEYBOARD_REMOVE;
 
 public abstract class AdminBotDialogState<R> extends AdminDefaultState {
     private Consumer<Update> onCancel;
@@ -20,24 +20,10 @@ public abstract class AdminBotDialogState<R> extends AdminDefaultState {
     private ReplyKeyboard defaultKeyboard;
     private String helpMessage;
     private Map<Command, Consumer<Update>> thenByCommand;
-    private boolean isSkippable;
+    private boolean skippable;
 
     public AdminBotDialogState(SushnayaBot bot) {
         super(bot);
-    }
-
-    protected boolean isCancellable() {
-        return true;
-    }
-
-    @Override
-    protected boolean isSkippable() {
-        return isSkippable;
-    }
-
-    public AdminBotDialogState<R> setSkippable(boolean skippable) {
-        isSkippable = skippable;
-        return this;
     }
 
     public AdminBotDialogState<R> onCancel(Consumer<Update> onCancel) {
@@ -83,25 +69,63 @@ public abstract class AdminBotDialogState<R> extends AdminDefaultState {
         return then;
     }
 
-    protected final void handleUpdate(Update update) {
-        Consumer<Update> commandThen = getCommandThen(update);
-        
-        if (commandThen != null) {
-            commandThen.accept(update);
+    @Override
+    public boolean handle(Update update) {
+        if (super.handle(update)) return true;
+
+        Consumer<Update> then = getThenForUpdate(update);
+        if (then != null) {
+            then.accept(update);
 
         } else {
-            handleUpdate(update, then, this::ask);
+            handleUpdate(update, this.then, this::ask);
         }
+
+        return true;
     }
 
-    private Consumer<Update> getCommandThen(Update update) {
+    private Consumer<Update> getThenForUpdate(Update update) {
+        return getThenForCommand(Command.parseCommand(update));
+    }
+
+    private Consumer<Update> getThenForCommand(Command command) {
         if (thenByCommand == null) return null;
 
-        return thenByCommand.get(Command.parse(update));
+        return thenByCommand.get(command);
     }
 
     protected abstract void handleUpdate(Update update, BiConsumer<Update, R> ok,
                                          BiConsumer<Update, String> ko);
+
+    @Override
+    public void start(Update update) {
+        cancel(update);
+        super.start(update);
+    }
+
+    @Override
+    public void menu(Update update) {
+        cancel(update);
+        super.menu(update);
+    }
+
+    @Override
+    public void dashboard(Update update) {
+        cancel(update);
+        super.dashboard(update);
+    }
+
+    @Override
+    public void editMenu(Update update) {
+        cancel(update);
+        super.editMenu(update);
+    }
+
+    @Override
+    public void startMenuCreationDialog(Update update) {
+        cancel(update);
+        super.startMenuCreationDialog(update);
+    }
 
     public void help(Update update) {
         if (helpMessage != null) {
@@ -114,11 +138,12 @@ public abstract class AdminBotDialogState<R> extends AdminDefaultState {
     }
 
     public void skip(Update update) {
-        if (then != null) {
+        if (skippable && then != null) {
             then.accept(update, null);
 
         } else {
             super.skip(update);
+            ask(update);
         }
     }
 
@@ -127,13 +152,9 @@ public abstract class AdminBotDialogState<R> extends AdminDefaultState {
             onCancel.accept(update);
 
         } else {
-            super.cancel(update);
+            // todo: enhance this design
+            throw new UnsupportedOperationException("Cancel handler must be not null");
         }
-    }
-
-    protected void nothingToSkip(Update update) {
-        super.nothingToSkip(update);
-        ask(update);
     }
 
     public AdminBotDialogState<R> ask(Update update) {
@@ -179,6 +200,11 @@ public abstract class AdminBotDialogState<R> extends AdminDefaultState {
 
         bot.say(update, sanitizeMessage(message),
                 keyboard == null ? defaultKeyboard : keyboard);
+    }
+
+    public AdminBotDialogState<R> setSkippable(boolean skippable) {
+        this.skippable = skippable;
+        return this;
     }
 }
 

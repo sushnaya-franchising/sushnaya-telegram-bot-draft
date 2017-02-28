@@ -8,7 +8,7 @@ import org.telegram.telegrambots.api.objects.Contact;
 import org.telegram.telegrambots.api.objects.Update;
 
 import static com.sushnaya.telegrambot.Command.SEND_CONTACT;
-import static com.sushnaya.telegrambot.util.UpdateUtil.getUserId;
+import static com.sushnaya.telegrambot.util.UpdateUtil.getTelegramUserId;
 
 public class UnregisteredUserState extends UserDefaultState {
     private static final UnregisteredKeyboardMarkupFactory KEYBOARD_MARKUP_FACTORY =
@@ -29,7 +29,7 @@ public class UnregisteredUserState extends UserDefaultState {
                 MESSAGES.unregisteredUserContactInquiry();
     }
 
-    public void home(Update update) {
+    public void menu(Update update) {
         bot.say(update, MESSAGES.askToRegister(),
                 KEYBOARD_MARKUP_FACTORY.contactRequestMarkup());
     }
@@ -45,17 +45,18 @@ public class UnregisteredUserState extends UserDefaultState {
     }
 
     @Override
-    protected void handleUpdate(Update update) {
-        if (Command.parse(update) == SEND_CONTACT) {
+    public boolean handle(Update update) {
+        if (super.handle(update)) return true;
+
+        if (Command.parseCommand(update) == SEND_CONTACT) {
             registerUser(update);
-
             bot.say(update, MESSAGES.registrationSuccessful());
+            bot.setUserDefaultState(getTelegramUserId(update)).menu(update);
 
-            bot.setUserDefaultState(getUserId(update)).home(update);
-
-        } else {
-            super.handleUpdate(update);
+            return true;
         }
+
+        return false;
     }
 
     private User registerUser(Update update) {

@@ -15,27 +15,13 @@ import static com.sushnaya.telegrambot.Command.*;
 
 public class StartupAdminKeyboardMarkupFactory implements AdminKeyboardMarkupFactory {
 
-    public InlineKeyboardMarkup homeMarkup() {
+    public InlineKeyboardMarkup menuMarkup(List<MenuCategory> categories) {
         return null;
     }
 
-    public InlineKeyboardMarkup categoriesMarkup(List<MenuCategory> categories) {
-        final List<List<InlineKeyboardButton>> keyboard = Lists.newArrayList();
-        List<InlineKeyboardButton> row = null;
-        for (int i = 0; i < categories.size(); i++) {
-            if (i % 2 == 0) {
-                if (row != null) keyboard.add(row);
-                row = Lists.newArrayList();
-            }
-
-            MenuCategory c = categories.get(i);
-            row.add(new InlineKeyboardButton().setText(c.getDisplayName())
-                    .setCallbackData(EDIT_CATEGORY.getUriForId(c.getId())));
-        }
-
-        keyboard.add(row);
-
-        return new InlineKeyboardMarkup().setKeyboard(keyboard);
+    @Override
+    public InlineKeyboardMarkup menusMarkup(List<Menu> menus) {
+        return null;
     }
 
     public InlineKeyboardMarkup dashboardMarkup() {
@@ -91,10 +77,7 @@ public class StartupAdminKeyboardMarkupFactory implements AdminKeyboardMarkupFac
                 new InlineKeyboardButton().setText(CONTINUE.getText())
                         .setCallbackData(CONTINUE.getUri())
         ));
-        keyboard.add(Lists.newArrayList(
-                new InlineKeyboardButton().setText(BACK_TO_DASHBOARD.getText())
-                        .setCallbackData(BACK_TO_DASHBOARD.getUri())
-        ));
+        appendBackToDashboardButton(keyboard);
 
         return new InlineKeyboardMarkup().setKeyboard(keyboard);
     }
@@ -103,28 +86,48 @@ public class StartupAdminKeyboardMarkupFactory implements AdminKeyboardMarkupFac
         throw new UnsupportedOperationException("Not implemented yet.");
     }
 
-    public InlineKeyboardMarkup proposalToAddOneMoreProductMarkup(MenuCategory category) {
+    public InlineKeyboardMarkup menuCreationFurtherCommands(Menu menu, MenuCategory categoryToCreateProductIn) {
         final List<List<InlineKeyboardButton>> keyboard = Lists.newArrayList();
-        keyboard.add(Lists.newArrayList(
-                new InlineKeyboardButton()
-                        .setText(CREATE_PRODUCT_IN_CATEGORY.getText() +
-                                " \"" + category.getDisplayName() + "\"")
-                        .setCallbackData(CREATE_PRODUCT_IN_CATEGORY.getUriForId(category.getId()))));
+        final int categoriesCount = menu.getMenuCategories().size();
+        final MenuCategory onlyCategory = categoriesCount == 1 ?
+                menu.getFirstCategory() : categoryToCreateProductIn;
 
-        if (category.getMenu().getMenuCategories().size() > 1) {
-            keyboard.add(Lists.newArrayList(
-                    new InlineKeyboardButton().setText(CREATE_PRODUCT_IN_MENU.getText())
-                            .setCallbackData(CREATE_PRODUCT_IN_MENU.getUriForId(
-                                    category.getMenu().getId()))
-            ));
-        }
+        if (onlyCategory != null) appendCreateProductInCategoryButton(keyboard, onlyCategory);
+        if (categoriesCount > 1) appendCreateProductInMenuButton(keyboard, menu);
+        appendCreateCategoryButton(keyboard, menu);
+        appendBackToDashboardButton(keyboard);
 
+        return new InlineKeyboardMarkup().setKeyboard(keyboard);
+    }
+
+    protected void appendBackToDashboardButton(List<List<InlineKeyboardButton>> keyboard) {
         keyboard.add(Lists.newArrayList(
                 new InlineKeyboardButton().setText(BACK_TO_DASHBOARD.getText())
                         .setCallbackData(BACK_TO_DASHBOARD.getUri())
         ));
+    }
 
-        return new InlineKeyboardMarkup().setKeyboard(keyboard);
+    protected void appendCreateCategoryButton(List<List<InlineKeyboardButton>> keyboard, Menu menu) {
+        keyboard.add(Lists.newArrayList(
+                new InlineKeyboardButton().setText(CREATE_CATEGORY.getText())
+                        .setCallbackData(CREATE_CATEGORY.getUriForId(menu.getId()))
+        ));
+    }
+
+    protected void appendCreateProductInMenuButton(List<List<InlineKeyboardButton>> keyboard, Menu menu) {
+        keyboard.add(Lists.newArrayList(
+                new InlineKeyboardButton().setText(CREATE_PRODUCT_IN_MENU.getText())
+                        .setCallbackData(CREATE_PRODUCT_IN_MENU.getUriForId(menu.getId()))
+        ));
+    }
+
+    protected void appendCreateProductInCategoryButton(List<List<InlineKeyboardButton>> keyboard, MenuCategory onlyCategory) {
+        keyboard.add(Lists.newArrayList(
+                new InlineKeyboardButton()
+                        .setText(CREATE_PRODUCT_IN_CATEGORY.getText(
+                                onlyCategory.getDisplayName()))
+                        .setCallbackData(CREATE_PRODUCT_IN_CATEGORY.getUriForId(
+                                onlyCategory.getId()))));
     }
 
 
@@ -150,10 +153,7 @@ public class StartupAdminKeyboardMarkupFactory implements AdminKeyboardMarkupFac
                         .setCallbackData(CREATE_MENU.getUri())
         ));
 
-        keyboard.add(Lists.newArrayList(
-                new InlineKeyboardButton().setText(BACK_TO_DASHBOARD.getText())
-                        .setCallbackData(BACK_TO_DASHBOARD.getUri())
-        ));
+        appendBackToDashboardButton(keyboard);
 
         return new InlineKeyboardMarkup().setKeyboard(keyboard);
     }

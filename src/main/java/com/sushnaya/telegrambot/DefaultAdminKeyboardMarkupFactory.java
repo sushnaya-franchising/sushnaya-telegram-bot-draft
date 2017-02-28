@@ -9,56 +9,42 @@ import org.telegram.telegrambots.api.objects.replykeyboard.buttons.InlineKeyboar
 import java.util.List;
 
 import static com.sushnaya.telegrambot.Command.ADMIN_DASHBOARD;
-import static com.sushnaya.telegrambot.Command.BACK_TO_DASHBOARD;
-import static com.sushnaya.telegrambot.Command.BACK_TO_HOME;
+import static com.sushnaya.telegrambot.Command.CLOSE_DASHBOARD;
+import static com.sushnaya.telegrambot.Command.EDIT_MENU;
 
 public class DefaultAdminKeyboardMarkupFactory extends StartupAdminKeyboardMarkupFactory {
     private static final KeyboardMarkupFactory DEFAULT_KEYBOARD_MARKUP_FACTORY =
             new DefaultKeyboardMarkupFactory();
 
-    public InlineKeyboardMarkup homeMarkup() {
-        return appendButton(DEFAULT_KEYBOARD_MARKUP_FACTORY.homeMarkup(),
+    public InlineKeyboardMarkup menuMarkup(List<MenuCategory> categories) {
+        return appendButton(DEFAULT_KEYBOARD_MARKUP_FACTORY.menuMarkup(categories),
+                ADMIN_DASHBOARD.getText(), ADMIN_DASHBOARD.getUri());
+    }
+
+    @Override
+    public InlineKeyboardMarkup menusMarkup(List<Menu> menus) {
+        return appendButton(DEFAULT_KEYBOARD_MARKUP_FACTORY.menusMarkup(menus),
                 ADMIN_DASHBOARD.getText(), ADMIN_DASHBOARD.getUri());
     }
 
     public InlineKeyboardMarkup dashboardMarkup() {
-        return appendBackToHomeButton(super.dashboardMarkup());
+        final InlineKeyboardMarkup dashboardMarkup = super.dashboardMarkup();
+        final List<InlineKeyboardButton> firstRowButtons = dashboardMarkup.getKeyboard().get(0);
+
+        firstRowButtons.add(0, new InlineKeyboardButton().setText(EDIT_MENU.getText())
+                .setCallbackData(EDIT_MENU.getUri()));
+
+        return appendCloseDashboardButton(dashboardMarkup);
     }
 
-    public InlineKeyboardMarkup localityAlreadyBoundToMenuMarkup() {
-        return addBackToHomeButton(super.localityAlreadyBoundToMenuMarkup());
-    }
-
-    public InlineKeyboardMarkup proposalToAddOneMoreProductMarkup(MenuCategory category) {
-        return addBackToHomeButton(super.proposalToAddOneMoreProductMarkup(category));
-    }
-
-    public InlineKeyboardMarkup editMenus(List<Menu> menus) {
-        return addBackToHomeButton(super.editMenus(menus));
-    }
-
-    private InlineKeyboardMarkup appendBackToHomeButton(InlineKeyboardMarkup markup) {
-        return appendButton(markup, BACK_TO_HOME.getText(), BACK_TO_HOME.getUri());
-    }
-
-    private InlineKeyboardMarkup addBackToHomeButton(InlineKeyboardMarkup markup) {
-        return addButton(markup, BACK_TO_HOME.getText(), BACK_TO_HOME.getUri());
+    private InlineKeyboardMarkup appendCloseDashboardButton(InlineKeyboardMarkup markup) {
+        return appendButton(markup, CLOSE_DASHBOARD.getText(), CLOSE_DASHBOARD.getUri());
     }
 
     private InlineKeyboardMarkup appendButton(InlineKeyboardMarkup markup, String label, String commandUri) {
         markup.getKeyboard().add(Lists.newArrayList(
                 new InlineKeyboardButton().setText(label).setCallbackData(commandUri)
         ));
-
-        return markup;
-    }
-
-    private InlineKeyboardMarkup addButton(InlineKeyboardMarkup markup, String label, String commandUri) {
-        final int lastRowIdx = markup.getKeyboard().size() - 1;
-
-        markup.getKeyboard().get(lastRowIdx).add(
-                new InlineKeyboardButton().setText(label).setCallbackData(commandUri)
-        );
 
         return markup;
     }

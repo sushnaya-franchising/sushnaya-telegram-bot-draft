@@ -1,12 +1,15 @@
 package com.sushnaya.telegrambot.state.admin;
 
+import com.sushnaya.entity.Menu;
 import com.sushnaya.telegrambot.*;
+import com.sushnaya.telegrambot.dialog.CategoryCreationDialog;
 import com.sushnaya.telegrambot.dialog.MenuCreationDialog;
+import com.sushnaya.telegrambot.dialog.ProductCreationDialog;
 import com.sushnaya.telegrambot.state.user.UserDefaultState;
 import org.telegram.telegrambots.api.objects.Update;
 
+import static com.sushnaya.telegrambot.Command.CANCEL;
 import static com.sushnaya.telegrambot.Command.HELP;
-import static com.sushnaya.telegrambot.util.UpdateUtil.getUserId;
 
 public class AdminDefaultState extends UserDefaultState {
     public static final AdminKeyboardMarkupFactory STARTUP_MARKUP_FACTORY =
@@ -16,6 +19,8 @@ public class AdminDefaultState extends UserDefaultState {
     public static final AdminKeyboardMarkupFactory NO_PUBLISHED_PRODUCTS_MARKUP_FACTORY =
             new NoPublishedProductsAdminKeyboardMarkupFactory();
     private MenuCreationDialog menuCreationDialog;
+    private CategoryCreationDialog categoryCreationDialog;
+    private ProductCreationDialog productCreationDialog;
 
     public AdminDefaultState(SushnayaBot bot) {
         super(bot);
@@ -28,24 +33,51 @@ public class AdminDefaultState extends UserDefaultState {
     }
 
     @Override
-    protected void handleUpdate(Update update) {
-        switch (Command.parse(update)) {
+    public boolean handle(Update update) {
+        if (super.handle(update)) return true;
+
+        switch (Command.parseCommand(update)) {
             case ADMIN_DASHBOARD:
-                if (isCancellable()) cancel(update);
+            case BACK_TO_DASHBOARD:
                 dashboard(update);
-                break;
+                return true;
             case CREATE_MENU:
-                if (isCancellable()) cancel(update);
-                createMenu(update);
-                break;
+                startMenuCreationDialog(update);
+                return true;
+            case CREATE_PRODUCT_IN_CATEGORY:
+                // todo: implement create product in category
+                return false;
+            case CREATE_PRODUCT_IN_MENU:
+                // todo: implement create product in menu
+                return false;
+            case CREATE_CATEGORY:
+                Menu menu = getMenu(update);
+
+                if (menu != null) {
+                    startCategoryCreationDialog(update, menu);
+                    return true;
+
+                } else {
+                    // todo: implement category creation with menu selection at the beginning
+                    // todo: cancel dialog state
+                    return false;
+                }
+
             case EDIT_MENU:
-                if (isCancellable()) cancel(update);
                 editMenu(update);
-                break;
+                return true;
+            case CLOSE_DASHBOARD:
+                menu(update);
+                return true;
             default:
-                super.handleUpdate(update);
-                break;
+                return false;
         }
+    }
+
+    private Menu getMenu(Update update) {
+        final Integer menuId = Command.parseId(update);
+
+        return bot.getDataStorage().getMenu(menuId);
     }
 
     @Override
@@ -61,12 +93,12 @@ public class AdminDefaultState extends UserDefaultState {
     }
 
     @Override
-    public void home(Update update) {
+    public void menu(Update update) {
         if (!bot.hasPublishedProducts()) {
             dashboard(update);
 
         } else {
-            super.home(update);
+            super.menu(update);
         }
     }
 
@@ -81,7 +113,7 @@ public class AdminDefaultState extends UserDefaultState {
         }
     }
 
-    protected String getDashboardMessageText() {
+    private String getDashboardMessageText() {
         if (!bot.hasProducts()) {
             return MESSAGES.dashboardNoProductsMessage();
         }
@@ -105,11 +137,13 @@ public class AdminDefaultState extends UserDefaultState {
         throw new UnsupportedOperationException();
     }
 
-    private void createMenu(Update update) {
+    public void startMenuCreationDialog(Update update) {
         ensureMenuCreationDialog().ask(update).then((u, menu) -> {
             bot.setAdminDefaultState(u);
             bot.getDataStorage().saveMenu(menu);
-            // todo: ask add one more product or return to administration
+            bot.say(u, MESSAGES.menuCreationIsSuccessful(menu), true);
+            bot.say(u, MESSAGES.proposeFurtherCommandsForMenuCreation(),
+                    getKeyboardMarkupFactory().menuCreationFurtherCommands(menu));
         }).onCancel(this::cancelMenuCreation);
     }
 
@@ -119,7 +153,27 @@ public class AdminDefaultState extends UserDefaultState {
     }
 
     private void cancelMenuCreation(Update u) {
+        String message = Command.parseCommand(u) == CANCEL ?
+                MESSAGES.menuCreationIsCancelled(HELP) :
+                MESSAGES.menuCreationIsInterrupted(HELP);
+
         bot.setAdminDefaultState(u);
-        bot.say(u, MESSAGES.menuCreationIsCancelled(HELP));
+        bot.say(u, message, true);
+    }
+
+    public void startCategoryCreationDialog(Update update, Menu menu) {
+        ensureCategoryCreationDialog().ask(update).then((u, category) -> {
+            menu.addCategory(category);
+            bot.setAdminDefaultState(u);
+            bot.getDataStorage().saveMenu(menu);
+            bot.say(u, MESSAGES.categoryCreationIsSuccessful(category), true);
+            bot.say(u, MESSAGES.proposeFurtherCommandsForMenuCreation(),
+                    getKeyboardMarkupFactory().menuCreationFurtherCommands(menu, category));
+        });
+    }
+
+    private CategoryCreationDialog ensureCategoryCreationDialog() {
+        return categoryCreationDialog != null ? categoryCreationDialog :
+                (categoryCreationDialog = new CategoryCreationDialog(bot, getKeyboardMarkupFactory()));
     }
 }
