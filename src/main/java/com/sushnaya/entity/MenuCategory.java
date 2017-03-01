@@ -125,4 +125,10 @@ public class MenuCategory extends Entity {
     public int hashCode() {
         return Objects.hash(super.hashCode(), getName(), getSubheading(), getImageUri(), getTelegramFilePath(), getProducts(), getMenu());
     }
+
+    public boolean hasPublishedProducts() {
+        if (getProducts() == null) return false;
+
+        return getProducts().stream().anyMatch(Product::isPublished);
+    }
 }

@@ -3,6 +3,7 @@ package com.sushnaya.telegrambot;
 import com.sushnaya.entity.Locality;
 import com.sushnaya.entity.Menu;
 import com.sushnaya.entity.MenuCategory;
+import com.sushnaya.entity.Product;
 import com.sushnaya.telegrambot.util.UTF8Control;
 
 import java.text.MessageFormat;
@@ -32,6 +33,14 @@ public class Messages {
     private final MessageFormat menuCreationIsInterruptedFormat;
     private final MessageFormat menuCreationIsSuccessfulFormat;
     private final MessageFormat categoryCreationIsSuccessfulFormat;
+    private final MessageFormat categoryCreationIsCancelledFormat;
+    private final MessageFormat categoryCreationIsInterruptedFormat;
+    private final MessageFormat categoryCreationInquireMenuCreationFormat;
+    private final MessageFormat productCreationIsCancelledFormat;
+    private final MessageFormat productCreationIsInterruptedFormat;
+    private final MessageFormat productCreationInquireMenuCreationFormat;
+    private final MessageFormat productCreationInquireCategoryCreationFormat;
+    private final MessageFormat productCreationIsSuccessfulFormat;
 
     public static Messages getDefaultMessages() {
         if (DEFAULT_MESSAGES == null) {
@@ -92,6 +101,22 @@ public class Messages {
                 messages.getString("menu_creation.successful"), locale);
         categoryCreationIsSuccessfulFormat = new MessageFormat(
                 messages.getString("category_creation.successful"), locale);
+        categoryCreationIsCancelledFormat = new MessageFormat(
+                messages.getString("category_creation.cancelled"), locale);
+        categoryCreationIsInterruptedFormat = new MessageFormat(
+                messages.getString("category_creation.interrupted"), locale);
+        categoryCreationInquireMenuCreationFormat = new MessageFormat(
+                messages.getString("category_creation.menu_creation_inquiry"), locale);
+        productCreationIsCancelledFormat = new MessageFormat(
+                messages.getString("product_creation.cancelled"), locale);
+        productCreationIsInterruptedFormat = new MessageFormat(
+                messages.getString("product_creation.interrupted"), locale);
+        productCreationInquireMenuCreationFormat = new MessageFormat(
+                messages.getString("product_creation.menu_creation_inquiry"), locale);
+        productCreationInquireCategoryCreationFormat = new MessageFormat(
+                messages.getString("product_creation.category_creation_inquiry"), locale);
+        productCreationIsSuccessfulFormat = new MessageFormat(
+                messages.getString("product_creation.successful"), locale);
     }
 
     public String askProductPriceForProductCreation() {
@@ -405,6 +430,11 @@ public class Messages {
         return menuCreationIsCancelledFormat.format(args);
     }
 
+    public String categoryCreationIsCancelled(Command helpCommand) {
+        Object[] args = {helpCommand.getUri()};
+        return categoryCreationIsCancelledFormat.format(args);
+    }
+
     public String administrationAllowed() {
         return messages.getString("administration_allowed");
     }
@@ -462,6 +492,11 @@ public class Messages {
         return menuCreationIsInterruptedFormat.format(args);
     }
 
+    public String categoryCreationIsInterrupted(Command helpCommand) {
+        Object[] args = {helpCommand.getUri()};
+        return categoryCreationIsInterruptedFormat.format(args);
+    }
+
     public String menuCreationIsSuccessful(Menu menu) {
         Object[] args = {menu.getLocality().getDisplayName()};
         return menuCreationIsSuccessfulFormat.format(args);
@@ -471,12 +506,62 @@ public class Messages {
         return messages.getString("menu_creation.propose_further_commands");
     }
 
+    public String proposeFurtherCommandsForCategoryCreation() {
+        return proposeFurtherCommandsForMenuCreation();
+    }
+
     public String categoryCreationIsSuccessful(MenuCategory category) {
         Object[] args = {category.getDisplayName()};
         return categoryCreationIsSuccessfulFormat.format(args);
     }
 
-    public String selectLocality() {
-        return messages.getString("select_locality");
+    public String selectMenu() {
+        return messages.getString("select_menu");
+    }
+
+    public String selectMenuForCategoryCreation() {
+        return messages.getString("category_creation.select_menu");
+    }
+
+    public String categoryCreationInquireMenuCreation(Command createMenuCommand) {
+        Object[] args = {createMenuCommand.getUri()};
+        return categoryCreationInquireMenuCreationFormat.format(args);
+    }
+
+    public String productCreationIsCancelled(Command helpCommand) {
+        Object[] args = {helpCommand.getUri()};
+        return productCreationIsCancelledFormat.format(args);
+    }
+
+    public String productCreationIsInterrupted(Command helpCommand) {
+        Object[] args = {helpCommand.getUri()};
+        return productCreationIsInterruptedFormat.format(args);
+    }
+
+    public String selectMenuForProductCreation() {
+        return messages.getString("product_creation.select_menu");
+    }
+
+    public String productCreationInquireCategoryCreation(Command createCategoryCommand) {
+        Object[] args = {createCategoryCommand.getUri()};
+        return productCreationInquireCategoryCreationFormat.format(args);
+    }
+
+    public String selectCategoryForProductCreation() {
+        return messages.getString("product_creation.select_category");
+    }
+
+    public String productCreationInquireMenuCreation(Command createMenuCommand) {
+        Object[] args = {createMenuCommand.getUri()};
+        return productCreationInquireMenuCreationFormat.format(args);
+    }
+
+    public String productCreationIsSuccessful(Product product) {
+        Object[] args = {product.getDisplayName(locale)};
+        return productCreationIsSuccessfulFormat.format(args);
+    }
+
+    public String proposeFurtherCommandsForProductCreation() {
+        return proposeFurtherCommandsForMenuCreation();
     }
 }

@@ -29,12 +29,13 @@ public class UnregisteredKeyboardMarkupFactory implements KeyboardMarkupFactory 
                 .setOneTimeKeyboad(true);
     }
 
-    public InlineKeyboardMarkup menuMarkup(List<MenuCategory> categories) {
+    @Override
+    public InlineKeyboardMarkup selectMenu(List<Menu> menus) {
         return null;
     }
 
     @Override
-    public InlineKeyboardMarkup menusMarkup(List<Menu> menus) {
+    public InlineKeyboardMarkup menu(Menu menu) {
         return null;
     }
 }

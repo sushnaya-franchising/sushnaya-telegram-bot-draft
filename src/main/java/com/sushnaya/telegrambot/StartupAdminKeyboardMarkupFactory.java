@@ -15,12 +15,13 @@ import static com.sushnaya.telegrambot.Command.*;
 
 public class StartupAdminKeyboardMarkupFactory implements AdminKeyboardMarkupFactory {
 
-    public InlineKeyboardMarkup menuMarkup(List<MenuCategory> categories) {
+    @Override
+    public InlineKeyboardMarkup selectMenu(List<Menu> menus) {
         return null;
     }
 
     @Override
-    public InlineKeyboardMarkup menusMarkup(List<Menu> menus) {
+    public InlineKeyboardMarkup menu(Menu menu) {
         return null;
     }
 
@@ -54,16 +55,23 @@ public class StartupAdminKeyboardMarkupFactory implements AdminKeyboardMarkupFac
         return oneButtonOneTimeReplyMarkup(SKIP.getText());
     }
 
+    public ReplyKeyboard skipCategorySubheadingStepMarkup() {
+        return oneButtonOneTimeReplyMarkup(SKIP.getText());
+    }
+
+
     @Override
     public ReplyKeyboard skipProductPhotoStepMarkup() {
         return oneButtonOneTimeReplyMarkup(SKIP.getText());
     }
 
-    public ReplyKeyboard skipDescriptionStepMarkup() {
+    @Override
+    public ReplyKeyboard skipProductSubheadingStepMarkup() {
         return oneButtonOneTimeReplyMarkup(SKIP.getText());
     }
 
-    public ReplyKeyboard skipCategorySubheadingStepMarkup() {
+    @Override
+    public ReplyKeyboard skipProductDescriptionStepMarkup() {
         return oneButtonOneTimeReplyMarkup(SKIP.getText());
     }
 
@@ -130,38 +138,6 @@ public class StartupAdminKeyboardMarkupFactory implements AdminKeyboardMarkupFac
                                 onlyCategory.getId()))));
     }
 
-
-    public InlineKeyboardMarkup editMenus(List<Menu> menus) {
-        final List<List<InlineKeyboardButton>> keyboard = Lists.newArrayList();
-
-        if (!menus.isEmpty()) {
-            List<InlineKeyboardButton> row = null;
-            for (int i = 0; i < menus.size(); i++) {
-                if (i % 2 == 0) {
-                    if (row != null) keyboard.add(row);
-                    row = Lists.newArrayList();
-                }
-                Menu menu = menus.get(i);
-                row.add(new InlineKeyboardButton().setText(menu.getLocality().getDisplayName())
-                        .setCallbackData(EDIT_MENU.getUriForId(menu.getId())));
-            }
-            keyboard.add(row);
-        }
-
-        keyboard.add(Lists.newArrayList(
-                new InlineKeyboardButton().setText(CREATE_MENU.getText())
-                        .setCallbackData(CREATE_MENU.getUri())
-        ));
-
-        appendBackToDashboardButton(keyboard);
-
-        return new InlineKeyboardMarkup().setKeyboard(keyboard);
-    }
-
-    public ReplyKeyboard contactRequestMarkup() {
-        return null;
-    }
-
     @Override
     public ReplyKeyboard productCreationCompletion(
             boolean suggestToAddSubheading, boolean suggestToAddDescription) {
@@ -188,15 +164,5 @@ public class StartupAdminKeyboardMarkupFactory implements AdminKeyboardMarkupFac
                 .setKeyboard(keyboard)
                 .setResizeKeyboard(true)
                 .setOneTimeKeyboad(true);
-    }
-
-    @Override
-    public ReplyKeyboard skipProductSubheadingStepMarkup() {
-        return oneButtonOneTimeReplyMarkup(SKIP.getText());
-    }
-
-    @Override
-    public ReplyKeyboard skipProductDescriptionStepMarkup() {
-        return oneButtonOneTimeReplyMarkup(SKIP.getText());
     }
 }

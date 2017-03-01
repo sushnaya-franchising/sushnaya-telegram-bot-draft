@@ -1,6 +1,8 @@
 package com.sushnaya.telegrambot.state.admin;
 
 import com.google.common.collect.Maps;
+import com.sushnaya.entity.Menu;
+import com.sushnaya.entity.MenuCategory;
 import com.sushnaya.telegrambot.Command;
 import com.sushnaya.telegrambot.SushnayaBot;
 import org.telegram.telegrambots.api.objects.Update;
@@ -122,9 +124,27 @@ public abstract class AdminBotDialogState<R> extends AdminDefaultState {
     }
 
     @Override
-    public void startMenuCreationDialog(Update update) {
+    public void createMenu(Update update) {
         cancel(update);
-        super.startMenuCreationDialog(update);
+        super.createMenu(update);
+    }
+
+    @Override
+    public void createCategory(Update update, Menu menu) {
+        cancel(update);
+        super.createCategory(update, menu);
+    }
+
+    @Override
+    public void createProductInMenu(Update update, Menu menu) {
+        cancel(update);
+        super.createProductInMenu(update, menu);
+    }
+
+    @Override
+    public void createProductInCategory(Update update, MenuCategory category) {
+        cancel(update);
+        super.createProductInCategory(update, category);
     }
 
     public void help(Update update) {
@@ -158,7 +178,7 @@ public abstract class AdminBotDialogState<R> extends AdminDefaultState {
     }
 
     public AdminBotDialogState<R> ask(Update update) {
-        ask(update, null);
+        ask(update, false);
         return this;
     }
 
@@ -168,7 +188,7 @@ public abstract class AdminBotDialogState<R> extends AdminDefaultState {
     }
 
     public AdminBotDialogState<R> ask(Update update, String message) {
-        ask(update, message, null);
+        ask(update, message, false);
         return this;
     }
 

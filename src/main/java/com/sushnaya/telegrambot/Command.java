@@ -39,6 +39,7 @@ public enum Command {
     SET_PRODUCT_DESCRIPTION("/setproductdescription", getDefaultMessages().setProductDescription()),
     PUBLISH_PRODUCT("/publishproduct", getDefaultMessages().publishProduct()),
     SKIP_PRODUCT_PUBLICATION(SKIP.getUri(), getDefaultMessages().skipProductPublication()),
+    CREATE_PRODUCT("/newproduct"),
     CREATE_PRODUCT_IN_MENU("/newproductinmenu", getDefaultMessages().createProductInMenu()),
     CREATE_PRODUCT_IN_CATEGORY("/newproductincategory", getDefaultMessages()::createProductInCategory);
 

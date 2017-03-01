@@ -1,15 +1,18 @@
 package com.sushnaya.telegrambot.state.admin;
 
 import com.sushnaya.entity.Menu;
+import com.sushnaya.entity.MenuCategory;
 import com.sushnaya.telegrambot.*;
+import com.sushnaya.telegrambot.Command;
 import com.sushnaya.telegrambot.dialog.CategoryCreationDialog;
 import com.sushnaya.telegrambot.dialog.MenuCreationDialog;
 import com.sushnaya.telegrambot.dialog.ProductCreationDialog;
 import com.sushnaya.telegrambot.state.user.UserDefaultState;
 import org.telegram.telegrambots.api.objects.Update;
 
-import static com.sushnaya.telegrambot.Command.CANCEL;
-import static com.sushnaya.telegrambot.Command.HELP;
+import java.util.List;
+
+import static com.sushnaya.telegrambot.Command.*;
 
 public class AdminDefaultState extends UserDefaultState {
     public static final AdminKeyboardMarkupFactory STARTUP_MARKUP_FACTORY =
@@ -42,27 +45,20 @@ public class AdminDefaultState extends UserDefaultState {
                 dashboard(update);
                 return true;
             case CREATE_MENU:
-                startMenuCreationDialog(update);
+                createMenu(update);
+                return true;
+            case CREATE_CATEGORY:
+                createCategory(update, getMenu(update));
+                return true;
+            case CREATE_PRODUCT:
+                createProduct(update);
+                return true;
+            case CREATE_PRODUCT_IN_MENU:
+                createProductInMenu(update, getMenu(update));
                 return true;
             case CREATE_PRODUCT_IN_CATEGORY:
-                // todo: implement create product in category
-                return false;
-            case CREATE_PRODUCT_IN_MENU:
-                // todo: implement create product in menu
-                return false;
-            case CREATE_CATEGORY:
-                Menu menu = getMenu(update);
-
-                if (menu != null) {
-                    startCategoryCreationDialog(update, menu);
-                    return true;
-
-                } else {
-                    // todo: implement category creation with menu selection at the beginning
-                    // todo: cancel dialog state
-                    return false;
-                }
-
+                createProductInCategory(update, getCategory(update));
+                return true;
             case EDIT_MENU:
                 editMenu(update);
                 return true;
@@ -78,6 +74,12 @@ public class AdminDefaultState extends UserDefaultState {
         final Integer menuId = Command.parseId(update);
 
         return bot.getDataStorage().getMenu(menuId);
+    }
+
+    private MenuCategory getCategory(Update update) {
+        final Integer categoryId = Command.parseId(update);
+
+        return bot.getDataStorage().getMenuCategory(categoryId);
     }
 
     @Override
@@ -137,7 +139,7 @@ public class AdminDefaultState extends UserDefaultState {
         throw new UnsupportedOperationException();
     }
 
-    public void startMenuCreationDialog(Update update) {
+    public void createMenu(Update update) {
         ensureMenuCreationDialog().ask(update).then((u, menu) -> {
             bot.setAdminDefaultState(u);
             bot.getDataStorage().saveMenu(menu);
@@ -153,27 +155,150 @@ public class AdminDefaultState extends UserDefaultState {
     }
 
     private void cancelMenuCreation(Update u) {
-        String message = Command.parseCommand(u) == CANCEL ?
-                MESSAGES.menuCreationIsCancelled(HELP) :
+        bot.setAdminDefaultState(u);
+
+        final Command command = Command.parseCommand(u);
+
+        if (command == CREATE_MENU) return;
+
+        String message = command == CANCEL ? MESSAGES.menuCreationIsCancelled(HELP) :
                 MESSAGES.menuCreationIsInterrupted(HELP);
 
-        bot.setAdminDefaultState(u);
         bot.say(u, message, true);
     }
 
-    public void startCategoryCreationDialog(Update update, Menu menu) {
+    public void createCategory(Update update, Menu menu) {
+        if (menu == null) {
+            askMenuToCreateCategoryIn(update);
+            return;
+        }
+
         ensureCategoryCreationDialog().ask(update).then((u, category) -> {
-            menu.addCategory(category);
             bot.setAdminDefaultState(u);
+
+            menu.addCategory(category);
             bot.getDataStorage().saveMenu(menu);
+
             bot.say(u, MESSAGES.categoryCreationIsSuccessful(category), true);
-            bot.say(u, MESSAGES.proposeFurtherCommandsForMenuCreation(),
-                    getKeyboardMarkupFactory().menuCreationFurtherCommands(menu, category));
-        });
+            bot.say(u, MESSAGES.proposeFurtherCommandsForCategoryCreation(),
+                    getKeyboardMarkupFactory().categoryCreationFurtherCommands(menu, category));
+        }).onCancel(this::cancelCategoryCreation);
+    }
+
+    private void cancelCategoryCreation(Update u) {
+        bot.setAdminDefaultState(u);
+
+        final Command command = Command.parseCommand(u);
+
+        if (command == CREATE_CATEGORY) return;
+
+        String message = command == CANCEL ? MESSAGES.categoryCreationIsCancelled(HELP) :
+                MESSAGES.categoryCreationIsInterrupted(HELP);
+
+        bot.say(u, message, true);
+    }
+
+    private void askMenuToCreateCategoryIn(Update update) {
+        final List<Menu> menus = bot.getDataStorage().getMenus();
+
+        if (menus == null || menus.isEmpty()) {
+            bot.say(update, MESSAGES.categoryCreationInquireMenuCreation(CREATE_MENU),
+                    true);
+
+        } else if (menus.size() == 1) {
+            createCategory(update, menus.get(0));
+
+        } else {
+            bot.say(update, MESSAGES.selectMenuForCategoryCreation(),
+                    getKeyboardMarkupFactory().menus(menus, CREATE_CATEGORY));
+        }
     }
 
     private CategoryCreationDialog ensureCategoryCreationDialog() {
         return categoryCreationDialog != null ? categoryCreationDialog :
                 (categoryCreationDialog = new CategoryCreationDialog(bot, getKeyboardMarkupFactory()));
+    }
+
+    private void createProduct(Update update) {
+        createProductInMenu(update, null);
+    }
+
+    public void createProductInMenu(Update update, Menu menu) {
+        askCategoryToCreateProductIn(update, menu);
+    }
+
+    private void askCategoryToCreateProductIn(Update update, Menu menu) {
+        if (menu == null) {
+            askMenuToCreateProductIn(update);
+            return;
+        }
+
+        final List<MenuCategory> categories = menu.getMenuCategories();
+
+        if (categories == null || categories.isEmpty()) {
+            bot.say(update, MESSAGES.productCreationInquireCategoryCreation(CREATE_CATEGORY),
+                    true);
+
+        } else if (categories.size() == 1) {
+            createProductInCategory(update, categories.get(0));
+
+        } else {
+            bot.say(update, MESSAGES.selectCategoryForProductCreation(),
+                    getKeyboardMarkupFactory().categories(categories, CREATE_PRODUCT_IN_CATEGORY));
+        }
+    }
+
+    private void askMenuToCreateProductIn(Update update) {
+        final List<Menu> menus = bot.getDataStorage().getMenus();
+
+        if (menus == null || menus.isEmpty()) {
+            bot.say(update, MESSAGES.productCreationInquireMenuCreation(CREATE_MENU),
+                    true);
+
+        } else if (menus.size() == 1) {
+            createProductInMenu(update, menus.get(0));
+
+        } else {
+            bot.say(update, MESSAGES.selectMenuForProductCreation(),
+                    getKeyboardMarkupFactory().menus(menus, CREATE_PRODUCT_IN_MENU));
+        }
+    }
+
+    public void createProductInCategory(Update update, MenuCategory category) {
+        if (category == null) {
+            createProduct(update);
+            return;
+        }
+
+        ensureProductCreationDialog().ask(update).then((u, product) -> {
+            bot.setAdminDefaultState(u);
+
+            category.addProduct(product);
+            bot.getDataStorage().saveCategory(category);
+
+            bot.say(u, MESSAGES.productCreationIsSuccessful(product), true);
+            bot.say(u, MESSAGES.proposeFurtherCommandsForProductCreation(),
+                    getKeyboardMarkupFactory().productCreationFurtherCommands(category.getMenu(), category));
+        }).onCancel(this::cancelProductCreation);
+    }
+
+    private ProductCreationDialog ensureProductCreationDialog() {
+        return productCreationDialog != null ? productCreationDialog :
+                (productCreationDialog = new ProductCreationDialog(bot, getKeyboardMarkupFactory()));
+    }
+
+    private void cancelProductCreation(Update u) {
+        bot.setAdminDefaultState(u);
+
+        final Command command = Command.parseCommand(u);
+
+        if (command == CREATE_PRODUCT ||
+                command == CREATE_PRODUCT_IN_CATEGORY ||
+                command == CREATE_PRODUCT_IN_MENU) return;
+
+        String message = command == CANCEL ? MESSAGES.productCreationIsCancelled(HELP) :
+                MESSAGES.productCreationIsInterrupted(HELP);
+
+        bot.say(u, message, true);
     }
 }

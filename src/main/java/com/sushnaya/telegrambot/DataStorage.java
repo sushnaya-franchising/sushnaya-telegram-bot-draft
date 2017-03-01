@@ -75,8 +75,7 @@ public class DataStorage {
         peterMenu.addCategory(sets);
 
         saveMenu(moscowMenu);
-//        saveMenu(peterMenu);
-
+        saveMenu(peterMenu);
     }
 
     public User getUserByTelegramId(Integer telegramId) {

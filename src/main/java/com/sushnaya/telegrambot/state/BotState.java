@@ -6,6 +6,7 @@ import com.sushnaya.telegrambot.Messages;
 import com.sushnaya.telegrambot.SushnayaBot;
 import org.telegram.telegrambots.api.objects.Update;
 
+// todo: all bot states must be stateless singletons
 public abstract class BotState {
     public static final Messages MESSAGES = Messages.getDefaultMessages();
     protected final SushnayaBot bot;

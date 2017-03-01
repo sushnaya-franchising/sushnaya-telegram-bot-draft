@@ -37,7 +37,7 @@ import static com.sushnaya.telegrambot.KeyboardMarkupFactory.REPLY_KEYBOARD_REMO
 import static com.sushnaya.telegrambot.util.UpdateUtil.*;
 
 public class SushnayaBot extends TelegramLongPollingBot {
-    private static final Map<Integer, BotState> STATES_BY_USER_ID = Maps.newHashMap();
+    private static final Map<Integer, BotState> STATES_BY_TELEGRAM_USER_ID = Maps.newHashMap();
     public static final Messages MESSAGES = Messages.getDefaultMessages();
     private final String token;
     private final HttpClient httpClient;
@@ -94,7 +94,7 @@ public class SushnayaBot extends TelegramLongPollingBot {
     }
 
     public void setState(int userId, BotState state) {
-        STATES_BY_USER_ID.put(userId, state);
+        STATES_BY_TELEGRAM_USER_ID.put(userId, state);
     }
 
     public boolean isRegistered(Integer userId) {
@@ -144,15 +144,15 @@ public class SushnayaBot extends TelegramLongPollingBot {
         }
     }
 
-    private BotState ensureBotState(Integer userId) {
-        BotState botState = STATES_BY_USER_ID.get(userId);
+    private BotState ensureBotState(Integer telegramUserId) {
+        BotState botState = STATES_BY_TELEGRAM_USER_ID.get(telegramUserId);
 
         if (botState == null) {
-            botState = isAdmin(userId) ? new AdminDefaultState(this) :
-                    isRegistered(userId) ? new UserDefaultState(this) :
+            botState = isAdmin(telegramUserId) ? new AdminDefaultState(this) :
+                    isRegistered(telegramUserId) ? new UserDefaultState(this) :
                             new UnregisteredUserState(this);
 
-            STATES_BY_USER_ID.put(userId, botState);
+            STATES_BY_TELEGRAM_USER_ID.put(telegramUserId, botState);
         }
 
         return botState;
@@ -248,5 +248,13 @@ public class SushnayaBot extends TelegramLongPollingBot {
 
     public List<Menu> getMenusWithPublishedProducts() {
         return getDataStorage().getMenusWithPublishedProducts();
+    }
+
+    public void menu(Update update) {
+        final Integer userId = getTelegramUserId(update);
+
+        if(userId == null) return;
+
+        ensureBotState(userId).menu(update);
     }
 }

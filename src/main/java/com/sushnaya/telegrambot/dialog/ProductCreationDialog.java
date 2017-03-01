@@ -45,7 +45,7 @@ public class ProductCreationDialog extends AdminBotDialogState<Product> {
                         .setDefaultMessage(MESSAGES.askProductPhoto())
                         .setHelpMessage(MESSAGES.skipProductPhotoStepHelp(SKIP) + "\n\n" +
                                 MESSAGES.cancelMenuCreationHelp(CANCEL))
-                        .setDefaultKeyboard(this.keyboardMarkupFactory.skipCategoryPhotoStepMarkup())
+                        .setDefaultKeyboard(this.keyboardMarkupFactory.skipProductPhotoStepMarkup())
                         .setSkippable(true),
 
                 productSubheadingStep = (AskTextState) new AskTextState(bot)

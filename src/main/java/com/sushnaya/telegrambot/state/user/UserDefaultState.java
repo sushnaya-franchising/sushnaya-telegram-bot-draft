@@ -26,8 +26,7 @@ public class UserDefaultState extends BotState {
 
     public void start(Update update) {
         bot.say(update, getGreetingMessageText(), true);
-
-        menu(update);
+        bot.menu(update);
     }
 
     protected String getGreetingMessageText() {
@@ -37,18 +36,25 @@ public class UserDefaultState extends BotState {
     public void menu(Update update) {
         final User user = bot.getDataStorage().getUserByTelegramId(
                 getTelegramUserId(update));
-        assert user != null;
 
         handleIfMenuIsSelected(update, user);
 
-        final Menu selectedMenu = user.getSelectedMenu();
-
-        if (selectedMenu != null && bot.hasPublishedProducts(selectedMenu.getId())) {
-            revealMenu(update, selectedMenu);
+        if (user.didSelectMenu()) {
+            revealMenu(update, user.getSelectedMenu());
 
         } else {
-            revealMenus(update);
+            askMenu(update);
         }
+    }
+
+    private void revealMenu(Update update, Menu menu) {
+        if (!bot.hasPublishedProducts(menu.getId())) {
+            askMenu(update);
+            return;
+        }
+
+        say(update, MESSAGES.userMenuDefaultMessage(),
+                getKeyboardMarkupFactory().menu(menu));
     }
 
     private void handleIfMenuIsSelected(Update update, User user) {
@@ -60,14 +66,7 @@ public class UserDefaultState extends BotState {
         }
     }
 
-    private void revealMenu(Update update, Menu menu) {
-        final InlineKeyboardMarkup keyboardMarkup =
-                getKeyboardMarkupFactory().menuMarkup(menu.getMenuCategories());
-
-        say(update, MESSAGES.userMenuDefaultMessage(), keyboardMarkup);
-    }
-
-    private void revealMenus(Update update) {
+    private void askMenu(Update update) {
         List<Menu> menus = bot.getMenusWithPublishedProducts();
 
         if (menus == null || menus.isEmpty()) {
@@ -77,8 +76,7 @@ public class UserDefaultState extends BotState {
             revealMenu(update, menus.get(0));
 
         } else {
-            say(update, MESSAGES.selectLocality(),
-                    getKeyboardMarkupFactory().menusMarkup(menus));
+            say(update, MESSAGES.selectMenu(), getKeyboardMarkupFactory().selectMenu(menus));
         }
     }
 
@@ -92,6 +90,7 @@ public class UserDefaultState extends BotState {
     }
 
     public void help(Update update) {
+        // todo: add change city command if more than 1 menu
         bot.say(update, getHelpMessageText(), true);
     }
 

@@ -5,9 +5,8 @@ import com.sushnaya.entity.MenuCategory;
 import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboard;
 
-import java.util.List;
-
 public interface AdminKeyboardMarkupFactory extends KeyboardMarkupFactory {
+
     InlineKeyboardMarkup dashboardMarkup();
 
     ReplyKeyboard editMenuLocalityMarkup();
@@ -18,7 +17,9 @@ public interface AdminKeyboardMarkupFactory extends KeyboardMarkupFactory {
 
     ReplyKeyboard skipProductPhotoStepMarkup();
 
-    ReplyKeyboard skipDescriptionStepMarkup();
+    ReplyKeyboard skipProductSubheadingStepMarkup();
+
+    ReplyKeyboard skipProductDescriptionStepMarkup();
 
     InlineKeyboardMarkup localityAlreadyBoundToMenuMarkup();
 
@@ -30,11 +31,14 @@ public interface AdminKeyboardMarkupFactory extends KeyboardMarkupFactory {
 
     InlineKeyboardMarkup menuCreationFurtherCommands(Menu menu, MenuCategory categoryToCreateProductIn);
 
-    InlineKeyboardMarkup editMenus(List<Menu> menus);
+    default InlineKeyboardMarkup categoryCreationFurtherCommands(Menu menu, MenuCategory categoryToCreateProductIn) {
+        return menuCreationFurtherCommands(menu, categoryToCreateProductIn);
+    }
+
+    default InlineKeyboardMarkup productCreationFurtherCommands(Menu menu, MenuCategory category){
+        return menuCreationFurtherCommands(menu, category);
+    }
 
     ReplyKeyboard productCreationCompletion(boolean suggestToAddSubheading, boolean suggestToAddDescription);
 
-    ReplyKeyboard skipProductSubheadingStepMarkup();
-
-    ReplyKeyboard skipProductDescriptionStepMarkup();
 }

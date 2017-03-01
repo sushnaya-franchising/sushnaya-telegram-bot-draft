@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class Menu extends Entity {
     private Locality locality;
@@ -46,6 +47,8 @@ public class Menu extends Entity {
     }
 
     public List<MenuCategory> getMenuCategories() {
+        if (menuCategories == null) return null;
+
         return Collections.unmodifiableList(menuCategories);
     }
 
@@ -74,5 +77,12 @@ public class Menu extends Entity {
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), getLocality(), getMenuCategories());
+    }
+
+    public List<MenuCategory> getMenuCategoriesWithPublishedProducts() {
+        if(getMenuCategories() == null) return null;
+
+        return getMenuCategories().stream().filter(MenuCategory::hasPublishedProducts)
+                .collect(Collectors.toList());
     }
 }
