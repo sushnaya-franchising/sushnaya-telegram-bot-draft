@@ -20,6 +20,8 @@ import static com.sushnaya.telegrambot.util.UpdateUtil.getChatId;
 
 public class UserNextProductInCategoryHandler extends SushnayaBotUpdateHandler {
 
+    public static final int TELEGRAM_PHOTO_CAPTION_MAX_LENGTH = 200;
+
     public UserNextProductInCategoryHandler(SushnayaBot bot) {
         super(bot);
     }
@@ -51,25 +53,32 @@ public class UserNextProductInCategoryHandler extends SushnayaBotUpdateHandler {
     }
 
     private void showProduct(Update update, Product product, int cursor) {
-        int nextProductCursor = cursor + 1;
+        final int nextProductCursor = cursor + 1;
         final int categoryId = product.getMenuCategory().getId();
         final int productsCount = bot.getDataStorage()
                 .getCategoryPublishedProductsCount(categoryId);
         final String displayName = product.getDisplayName(MESSAGES.getLocale());
         final String subheading = product.getSubheading();
-        final String caption = subheading != null ? displayName + "\n\n" + subheading : displayName;
+        final String message = subheading != null ? displayName + "\n\n" + subheading : displayName;
+        final InlineKeyboardMarkup keyboard = productKeyboard(
+                categoryId, nextProductCursor, productsCount);
 
-        if (product.getTelegramFileId() != null) {
-            sendPhoto(bot, new SendPhoto()
+        if (product.hasTelegramPhotoFile()) {
+            SendPhoto photo = new SendPhoto()
                     .setChatId(getChatId(update))
-                    .setCaption(caption)
-                    .setPhoto(product.getTelegramFileId())
-                    .setReplyMarkup(productKeyboard(product.getMenuCategory().getId(),
-                            nextProductCursor, productsCount)));
+                    .setPhoto(product.getTelegramPhotoFileId());
+
+            if (message.length() <= TELEGRAM_PHOTO_CAPTION_MAX_LENGTH) {
+                sendPhoto(bot, photo.setCaption(message)
+                        .setReplyMarkup(keyboard));
+
+            } else {
+                sendPhoto(bot, photo);
+                bot.say(update, message, keyboard);
+            }
 
         } else {
-            bot.say(update, caption, productKeyboard(
-                    categoryId, nextProductCursor, productsCount));
+            bot.say(update, message, keyboard);
         }
     }
 

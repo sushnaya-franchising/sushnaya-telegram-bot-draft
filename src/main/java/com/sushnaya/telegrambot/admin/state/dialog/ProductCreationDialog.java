@@ -129,7 +129,7 @@ public class ProductCreationDialog extends AdminBotDialogState<Product> {
         });
 
         photoStep.then((u, productPhotoFileId) -> {
-            product.setTelegramFileId(productPhotoFileId);
+            product.setTelegramPhotoFileId(productPhotoFileId);
 
             completionStep.ask(u);
         });

@@ -14,7 +14,7 @@ public class Product extends Entity {
     private String subheading;
     private String description;
     private String imageUri;
-    private String telegramFileId;
+    private String telegramPhotoFileId;
     private int likesCount;
     private List<Comment> comments;
     private boolean isPublished;
@@ -37,12 +37,16 @@ public class Product extends Entity {
         this.menuCategory = menuCategory;
     }
 
-    public String getTelegramFileId() {
-        return telegramFileId;
+    public String getTelegramPhotoFileId() {
+        return telegramPhotoFileId;
     }
 
-    public void setTelegramFileId(String telegramFileId) {
-        this.telegramFileId = telegramFileId;
+    public boolean hasTelegramPhotoFile() {
+        return getTelegramPhotoFileId() != null;
+    }
+
+    public void setTelegramPhotoFileId(String telegramPhotoFileId) {
+        this.telegramPhotoFileId = telegramPhotoFileId;
     }
 
     public MenuCategory getMenuCategory() {
@@ -122,6 +126,8 @@ public class Product extends Entity {
 
         if (hasPrice()) {
             final NumberFormat currency = NumberFormat.getCurrencyInstance(locale);
+            currency.setMinimumFractionDigits(price % 1 != 0 ? 2 : 0);
+
             sb.append(", ").append(currency.format(getPrice()));
         }
 
@@ -154,12 +160,12 @@ public class Product extends Entity {
                 Objects.equals(getSubheading(), product.getSubheading()) &&
                 Objects.equals(getDescription(), product.getDescription()) &&
                 Objects.equals(getImageUri(), product.getImageUri()) &&
-                Objects.equals(getTelegramFileId(), product.getTelegramFileId()) &&
+                Objects.equals(getTelegramPhotoFileId(), product.getTelegramPhotoFileId()) &&
                 Objects.equals(getComments(), product.getComments());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), getMenuCategory(), getName(), getPrice(), getSubheading(), getDescription(), getImageUri(), getTelegramFileId(), getLikesCount(), getComments(), isPublished());
+        return Objects.hash(super.hashCode(), getMenuCategory(), getName(), getPrice(), getSubheading(), getDescription(), getImageUri(), getTelegramPhotoFileId(), getLikesCount(), getComments(), isPublished());
     }
 }

@@ -146,8 +146,7 @@ public class SushnayaBot extends TelegramLongPollingBot {
     }
 
     public void handleCommand(Update update, Command command) {
-        ensureBotState(getTelegramUserId(update))
-                .handle(update, command);
+        ensureBotState(getTelegramUserId(update)).handle(update, command);
     }
 
     private BotState ensureBotState(Integer telegramUserId) {
