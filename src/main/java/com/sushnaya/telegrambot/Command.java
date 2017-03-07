@@ -39,7 +39,6 @@ public enum Command {
     SET_PRODUCT_SUBHEADING("/setproductsubheading"),
     SET_PRODUCT_DESCRIPTION("/setproductdescription"),
     PUBLISH_PRODUCT("/publishproduct"),
-    SKIP_PRODUCT_PUBLICATION(SKIP.getUri()),
     CREATE_PRODUCT("/newproduct"),
     CREATE_PRODUCT_IN_CATEGORY("/newproductincategory");
 

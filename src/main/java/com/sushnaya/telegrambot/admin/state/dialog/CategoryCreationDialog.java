@@ -25,6 +25,7 @@ public class CategoryCreationDialog extends AdminBotDialogState<MenuCategory> {
     public CategoryCreationDialog(SushnayaBot bot) {
         super(bot);
 
+        // todo: fix all help messages for all cases: first menu creation, first category creation etc
         steps = new AdminBotDialogState[]{
                 nameStep = (AskTextState) new AskTextState(bot)
                         .setDefaultMessage(MESSAGES.askCategoryName())

@@ -49,13 +49,15 @@ public abstract class AdminBotDialogState<R> extends AdminDefaultState {
         registerUpdateHandler(CREATE_PRODUCT_IN_CATEGORY, cancelBefore(getUpdateHandler(CREATE_PRODUCT_IN_CATEGORY)));
         registerUpdateHandler(CANCEL, this::cancel);
         registerUpdateHandler(SKIP, this::skip);
+
+        final UpdateHandler originalHelpHandler = getUpdateHandler(HELP);
         registerUpdateHandler(HELP, u -> {
             if (helpMessage != null) {
                 bot.say(u, helpMessage);
-                ask(u);
             } else {
-                cancelBefore(getUpdateHandler(HELP));
+                originalHelpHandler.handle(u);
             }
+            ask(u);
         });
     }
 
@@ -153,6 +155,11 @@ public abstract class AdminBotDialogState<R> extends AdminDefaultState {
         return this;
     }
 
+    public AdminBotDialogState<R> ask(Update update, ReplyKeyboard keyboard) {
+        ask(update, null, keyboard);
+        return this;
+    }
+
     public AdminBotDialogState<R> ask(Update update, boolean removeKeyboard) {
         ask(update, null, removeKeyboard);
         return this;
@@ -169,17 +176,15 @@ public abstract class AdminBotDialogState<R> extends AdminDefaultState {
     }
 
     public AdminBotDialogState<R> ask(Update update, String message, ReplyKeyboard keyboard) {
-        if (message == null && defaultMessage == null) throw new IllegalStateException(
-                "Default message must be not null");
-
-        say(update, sanitizeMessage(message) + ' ' + HELP.getUri(), keyboard);
+        say(update, message, keyboard);
         bot.setState(update, this);
 
         return this;
     }
 
-    private String sanitizeMessage(String message) {
-        return message == null ? defaultMessage : message;
+    private String prepareMessage(String message) {
+        return (message == null ? defaultMessage : message) +
+                (helpMessage == null ? "" : ' ' + HELP.getUri());
     }
 
     public void say(Update update, String message, ReplyKeyboard keyboard) {
@@ -189,7 +194,7 @@ public abstract class AdminBotDialogState<R> extends AdminDefaultState {
         if (defaultMessage == null) setDefaultMessage(message);
         if (defaultKeyboard == null) setDefaultKeyboard(keyboard);
 
-        bot.say(update, sanitizeMessage(message),
+        bot.say(update, prepareMessage(message),
                 keyboard == null ? defaultKeyboard : keyboard);
     }
 

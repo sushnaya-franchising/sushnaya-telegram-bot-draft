@@ -58,39 +58,32 @@ public class ProductCreationDialog extends AdminBotDialogState<Product> {
         steps = new AdminBotDialogState[]{
                 nameStep = (AskTextState) new AskTextState(bot)
                         .setDefaultMessage(MESSAGES.askProductName())
-                        .setHelpMessage(MESSAGES.cancelMenuCreationHelp(CANCEL))
                         .setDefaultKeyboard(REPLY_KEYBOARD_REMOVE),
 
                 priceStep = (AskDoubleValueState) new AskDoubleValueState(bot)
                         .setDefaultMessage(MESSAGES.askProductPrice())
-                        .setHelpMessage(MESSAGES.askProductPriceHelp() + "\n\n" +
-                                MESSAGES.cancelMenuCreationHelp(CANCEL)),
+                        .setHelpMessage(MESSAGES.askProductPriceHelp()),
 
                 photoStep = (AskPhotoState) new AskPhotoState(bot)
                         .setDefaultMessage(MESSAGES.askProductPhoto())
-                        .setHelpMessage(MESSAGES.skipProductPhotoStepHelp(SKIP) + "\n\n" +
-                                MESSAGES.cancelMenuCreationHelp(CANCEL))
                         .setDefaultKeyboard(this.keyboardMarkupFactory.skipProductPhotoStepMarkup())
                         .setSkippable(true),
 
                 subheadingStep = (AskTextState) new AskTextState(bot)
                         .setDefaultMessage(MESSAGES.askProductSubheading())
-                        .setHelpMessage((MESSAGES.askProductSubheadingHelp() + "\n\n" +
-                                MESSAGES.skipProductSubheadingStepHelp(SKIP) + "\n\n" +
-                                MESSAGES.cancelMenuCreationHelp(CANCEL)))
+                        .setHelpMessage(MESSAGES.askProductSubheadingHelp())
                         .setDefaultKeyboard(this.keyboardMarkupFactory.skipProductSubheadingStepMarkup())
                         .setSkippable(true),
 
                 descriptionStep = (AskTextState) new AskTextState(bot)
                         .setDefaultMessage(MESSAGES.askProductDescription())
-                        .setHelpMessage(MESSAGES.skipProductDescriptionStepHelp(SKIP) + "\n\n" +
-                                MESSAGES.cancelMenuCreationHelp(CANCEL))
+                        // todo: add help message with markdown support info!
                         .setDefaultKeyboard(this.keyboardMarkupFactory.skipProductDescriptionStepMarkup())
                         .setSkippable(true),
 
                 completionStep = (AskCommandState) new AskCommandState(bot)
                         .setDefaultMessage(MESSAGES.proposeSetProductSubheadingDescriptionAndPublish())
-                        .setHelpMessage(MESSAGES.cancelMenuCreationHelp(CANCEL))
+                        // todo: add help message with detailed explanation about publication
                         .setSkippable(true)
                         .setExtraCommandParser(COMPLETION_STEP_EXTRA_COMMAND_PARSER)
         };
@@ -131,30 +124,27 @@ public class ProductCreationDialog extends AdminBotDialogState<Product> {
         photoStep.then((u, productPhotoFileId) -> {
             product.setTelegramPhotoFileId(productPhotoFileId);
 
-            completionStep.ask(u);
+            completionStep.ask(u, keyboardMarkupFactory.productCreationCompletion(
+                    true, true));
         });
 
         subheadingStep.then((u, productSubheading) -> {
             product.setSubheading(productSubheading);
 
-            askProductCreationCompletionAgain(u, product);
+            askCompletionAgain(u, product);
         });
 
         descriptionStep.then((u, productDescription) -> {
             product.setDescription(productDescription);
             // todo: support description.md file
 
-            askProductCreationCompletionAgain(u, product);
+            askCompletionAgain(u, product);
         });
-
-        // reset default keyboard to propose all optional actions
-        completionStep.setDefaultKeyboard(this.keyboardMarkupFactory.productCreationCompletion(
-                        true, true));
 
         completionStep.then((u, v) -> getThen().accept(u, product))
                 .ifThen(SET_PRODUCT_SUBHEADING, subheadingStep::ask)
                 .ifThen(SET_PRODUCT_DESCRIPTION, descriptionStep::ask)
-                .ifThen(SKIP_PRODUCT_PUBLICATION, (u) -> getThen().accept(u, product))
+                .ifThen(SKIP, (u) -> getThen().accept(u, product))
                 .ifThen(PUBLISH_PRODUCT, (u) -> {
                     product.setPublished(true);
                     getThen().accept(u, product);
@@ -163,22 +153,26 @@ public class ProductCreationDialog extends AdminBotDialogState<Product> {
         return this;
     }
 
-    private void askProductCreationCompletionAgain(Update u, Product product) {
-        final ReplyKeyboard replyKeyboard = keyboardMarkupFactory.productCreationCompletion(
+    private void askCompletionAgain(Update u, Product product) {
+        String message = getProposalForCompletionStep(product);
+        final ReplyKeyboard keyboard = keyboardMarkupFactory.productCreationCompletion(
                 !product.hasSubheading(), !product.hasDescription());
-        completionStep.setDefaultKeyboard(replyKeyboard);
 
+        completionStep.ask(u, message, keyboard);
+    }
+
+    private String getProposalForCompletionStep(Product product) {
         if (product.hasSubheading() && product.hasDescription()) {
-            completionStep.setDefaultMessage(MESSAGES.proposePublishProduct());
+            return MESSAGES.proposePublishProduct();
 
         } else if (!product.hasSubheading() && product.hasDescription()) {
-            completionStep.setDefaultMessage(MESSAGES.proposeSetProductSubheadingAndPublish());
+            return MESSAGES.proposeSetProductSubheadingAndPublish();
 
         } else if (product.hasSubheading() && !product.hasDescription()) {
-            completionStep.setDefaultMessage(MESSAGES.proposeSetProductDescriptionAndPublish());
+            return MESSAGES.proposeSetProductDescriptionAndPublish();
         }
 
-        completionStep.ask(u);
+        return completionStep.getDefaultMessage();
     }
 
     @Override

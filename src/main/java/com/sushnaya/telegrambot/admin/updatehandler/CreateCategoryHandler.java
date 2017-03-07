@@ -4,6 +4,7 @@ import com.sushnaya.entity.Menu;
 import com.sushnaya.telegrambot.Command;
 import com.sushnaya.telegrambot.SushnayaBot;
 import com.sushnaya.telegrambot.SushnayaBotUpdateHandler;
+import com.sushnaya.telegrambot.admin.state.AskCommandState;
 import com.sushnaya.telegrambot.admin.state.dialog.CategoryCreationDialog;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -16,10 +17,22 @@ import static com.sushnaya.telegrambot.SushnayaBot.MESSAGES;
 import static com.sushnaya.telegrambot.util.KeyboardMarkupUtil.twoColumnsInlineKeyboard;
 
 public class CreateCategoryHandler extends SushnayaBotUpdateHandler {
+    private AskCommandState menuStep;
     private CategoryCreationDialog categoryCreationDialog;
 
     public CreateCategoryHandler(SushnayaBot bot) {
         super(bot);
+    }
+
+    private AskCommandState ensureMenuStep() {
+        return menuStep == null ? menuStep = (AskCommandState) new AskCommandState(bot)
+                .setDefaultMessage(MESSAGES.selectMenuForCategoryCreation())
+                .onCancel(this::cancelCategoryCreation) : menuStep;
+    }
+
+    private CategoryCreationDialog ensureCategoryCreationDialog() {
+        return categoryCreationDialog != null ? categoryCreationDialog :
+                (categoryCreationDialog = new CategoryCreationDialog(bot));
     }
 
     @Override
@@ -29,7 +42,7 @@ public class CreateCategoryHandler extends SushnayaBotUpdateHandler {
         createCategory(update, menu);
     }
 
-    public void createCategory(Update update, Menu menu) {
+    private void createCategory(Update update, Menu menu) {
         if (menu == null) {
             askMenuToCreateCategoryIn(update);
             return;
@@ -77,14 +90,8 @@ public class CreateCategoryHandler extends SushnayaBotUpdateHandler {
             createCategory(update, menus.get(0));
 
         } else {
-            bot.say(update, MESSAGES.selectMenuForCategoryCreation(),
-                    selectMenuToCreateCategoryKeyboard(menus));
+            ensureMenuStep().ask(update, selectMenuToCreateCategoryKeyboard(menus));
         }
-    }
-
-    private CategoryCreationDialog ensureCategoryCreationDialog() {
-        return categoryCreationDialog != null ? categoryCreationDialog :
-                (categoryCreationDialog = new CategoryCreationDialog(bot));
     }
 
     private InlineKeyboardMarkup selectMenuToCreateCategoryKeyboard(List<Menu> menus) {

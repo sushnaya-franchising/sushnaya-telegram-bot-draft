@@ -53,7 +53,7 @@ public class CreateProductInCategoryHandler extends SushnayaBotUpdateHandler {
                 (productCreationDialog = new ProductCreationDialog(bot));
     }
 
-    private void cancelProductCreation(Update u) {
+    void cancelProductCreation(Update u) {
         bot.setAdminDefaultState(u);
 
         final Command command = Command.parseCommand(u);

@@ -4,6 +4,7 @@ import com.sushnaya.entity.Menu;
 import com.sushnaya.entity.MenuCategory;
 import com.sushnaya.telegrambot.Command;
 import com.sushnaya.telegrambot.SushnayaBot;
+import com.sushnaya.telegrambot.admin.state.AskCommandState;
 import org.telegram.telegrambots.api.objects.Update;
 
 import java.util.List;
@@ -13,10 +14,25 @@ import static com.sushnaya.telegrambot.SushnayaBot.MESSAGES;
 import static com.sushnaya.telegrambot.util.KeyboardMarkupUtil.selectCategoryKeyboard;
 import static com.sushnaya.telegrambot.util.KeyboardMarkupUtil.selectMenuKeyboard;
 
-// todo: handle cancel command?
+
 public class CreateProductInMenuHandler extends CreateProductInCategoryHandler {
+    private AskCommandState menuStep;
+    private AskCommandState categoryStep;
+
     public CreateProductInMenuHandler(SushnayaBot bot) {
         super(bot);
+    }
+
+    private AskCommandState ensureMenuStep() {
+        return menuStep == null ? menuStep = (AskCommandState) new AskCommandState(bot)
+                .setDefaultMessage(MESSAGES.selectMenuForProductCreation())
+                .onCancel(this::cancelProductCreation) : menuStep;
+    }
+
+    private AskCommandState ensureCategoryStep() {
+        return categoryStep == null ? categoryStep = (AskCommandState) new AskCommandState(bot)
+                .setDefaultMessage(MESSAGES.selectCategoryForProductCreation())
+                .onCancel(this::cancelProductCreation) : categoryStep;
     }
 
     @Override
@@ -50,10 +66,9 @@ public class CreateProductInMenuHandler extends CreateProductInCategoryHandler {
             createProductInCategory(update, categories.get(0));
 
         } else {
-            bot.say(update, MESSAGES.selectCategoryForProductCreation(),
-                    selectCategoryKeyboard(categories,
-                            c -> buildCommandUri(CREATE_PRODUCT_IN_CATEGORY, c.getId())
-                    ));
+            ensureCategoryStep().ask(update, selectCategoryKeyboard(categories,
+                    c -> buildCommandUri(CREATE_PRODUCT_IN_CATEGORY, c.getId())
+            ));
         }
     }
 
@@ -68,10 +83,9 @@ public class CreateProductInMenuHandler extends CreateProductInCategoryHandler {
             createProductInMenu(update, menus.get(0));
 
         } else {
-            bot.say(update, MESSAGES.selectMenuForProductCreation(),
-                    selectMenuKeyboard(menus,
-                            m -> buildCommandUri(CREATE_PRODUCT, m.getId())
-                    ));
+            ensureMenuStep().ask(update, selectMenuKeyboard(menus,
+                    m -> buildCommandUri(CREATE_PRODUCT, m.getId())
+            ));
         }
     }
 }
