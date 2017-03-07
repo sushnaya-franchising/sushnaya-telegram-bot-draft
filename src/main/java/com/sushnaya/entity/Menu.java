@@ -60,6 +60,10 @@ public class Menu extends Entity {
         return locality;
     }
 
+    public String getLocalityName() {
+        return getLocality().getName();
+    }
+
     public void setLocality(Locality locality) {
         this.locality = locality;
     }
@@ -79,7 +83,7 @@ public class Menu extends Entity {
         return Objects.hash(super.hashCode(), getLocality(), getMenuCategories());
     }
 
-    public List<MenuCategory> getMenuCategoriesWithPublishedProducts() {
+    public List<MenuCategory> getCategoriesWithPublishedProducts() {
         if(getMenuCategories() == null) return null;
 
         return getMenuCategories().stream().filter(MenuCategory::hasPublishedProducts)

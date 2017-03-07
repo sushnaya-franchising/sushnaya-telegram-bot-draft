@@ -1,5 +1,6 @@
 package com.sushnaya.entity;
 
+import java.nio.ByteBuffer;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 

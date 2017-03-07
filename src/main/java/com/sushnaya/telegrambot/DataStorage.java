@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.sushnaya.entity.*;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.NotNull;
 import java.util.*;
@@ -96,6 +97,10 @@ public class DataStorage {
         // todo: merge if already signed up with digits
         if (user == null) return;
 
+        if (StringUtils.isEmpty(user.getPhoneNumber())) {
+            throw new Error("User phone number must be provided");
+        }
+
         USERS_BY_TELEGRAM_ID.put(user.getTelegramId(), user);
 
         if (user.getRole().equals(Role.ADMIN) ||
@@ -139,7 +144,7 @@ public class DataStorage {
                 c.getMenu().getId() == menuId).collect(Collectors.toList());
     }
 
-    public List<Product> getProducts() {
+    public List<Product> getPublishedProducts() {
         return Collections.unmodifiableList(new ArrayList<>(PRODUCTS_BY_ID.values()));
     }
 
@@ -155,7 +160,7 @@ public class DataStorage {
     // todo: create entity constraints and storage have to validate it
     public void saveMenu(Menu menu) {
         MENUS_BY_ID.put(menu.getId(), menu);
-        // if menu is already bound to locality
+        // if selectCategoryKeyboard is already bound to locality
         saveLocality(menu.getLocality());
         menu.getMenuCategories().forEach(this::saveCategory);
         MENU_CATEGORIES_BY_MENU_ID.put(menu.getId(), menu.getMenuCategories());
@@ -184,7 +189,7 @@ public class DataStorage {
     public boolean hasPublishedProducts() {
         if (!hasProducts()) return false;
 
-        for (Product product : getProducts()) {
+        for (Product product : getPublishedProducts()) {
             if (product.isPublished()) return true;
         }
 
@@ -194,7 +199,7 @@ public class DataStorage {
     public boolean hasPublishedProducts(int menuId) {
         if (!hasProducts()) return false;
 
-        for (Product product : getProducts()) {
+        for (Product product : getPublishedProducts()) {
             if (product.getMenuCategory().getMenu().getId() == menuId && product.isPublished())
                 return true;
         }
@@ -203,7 +208,7 @@ public class DataStorage {
     }
 
     public boolean hasProducts() {
-        return !getProducts().isEmpty();
+        return !getPublishedProducts().isEmpty();
     }
 
     public double getLastNDaysRevenue(int days) {
@@ -241,5 +246,31 @@ public class DataStorage {
         }
 
         return result;
+    }
+
+    public List<Product> getPublishedProducts(Integer categoryId, int cursor, int count) {
+        if (cursor < 0 || count < 1 || categoryId == null) return null;
+
+        final List<Product> products = getCategoryPublishedProducts(categoryId);
+
+        final int from = Math.min(products.size(), cursor);
+        final int to = Math.min(products.size(), cursor + count);
+
+        return products.subList(from, to);
+    }
+
+    public List<Product> getCategoryPublishedProducts(Integer categoryId) {
+        if (categoryId == null) return null;
+
+        final MenuCategory menuCategory = getMenuCategory(categoryId);
+
+        return menuCategory.getProducts().stream()
+                .filter(Product::isPublished).collect(Collectors.toList());
+    }
+
+    public int getCategoryPublishedProductsCount(Integer categoryId) {
+        if (categoryId == null) return 0;
+
+        return getCategoryPublishedProducts(categoryId).size();
     }
 }

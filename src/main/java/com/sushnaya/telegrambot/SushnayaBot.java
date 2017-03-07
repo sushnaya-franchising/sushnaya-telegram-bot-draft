@@ -5,12 +5,11 @@ import com.sushnaya.entity.Coordinate;
 import com.sushnaya.entity.Locality;
 import com.sushnaya.entity.Menu;
 import com.sushnaya.entity.User;
-import com.sushnaya.telegrambot.state.BotState;
-import com.sushnaya.telegrambot.state.admin.AdminDefaultState;
-import com.sushnaya.telegrambot.state.user.UnregisteredUserState;
-import com.sushnaya.telegrambot.state.user.UserDefaultState;
-import com.sushnaya.telegrambot.util.UpdateUtil;
-import org.apache.commons.lang3.StringUtils;
+import com.sushnaya.telegrambot.admin.keyboard.AdminKeyboardFactoryProvider;
+import com.sushnaya.telegrambot.admin.keyboard.AdminKeyboardMarkupFactory;
+import com.sushnaya.telegrambot.admin.state.AdminDefaultState;
+import com.sushnaya.telegrambot.user.state.UnregisteredUserState;
+import com.sushnaya.telegrambot.user.state.UserDefaultState;
 import org.apache.http.client.HttpClient;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -32,8 +31,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-import static com.sushnaya.telegrambot.Command.HELP;
-import static com.sushnaya.telegrambot.KeyboardMarkupFactory.REPLY_KEYBOARD_REMOVE;
+import static com.sushnaya.telegrambot.Command.*;
+import static com.sushnaya.telegrambot.util.KeyboardMarkupUtil.REPLY_KEYBOARD_REMOVE;
 import static com.sushnaya.telegrambot.util.UpdateUtil.*;
 
 public class SushnayaBot extends TelegramLongPollingBot {
@@ -62,6 +61,10 @@ public class SushnayaBot extends TelegramLongPollingBot {
         adminDefaultState = new AdminDefaultState(this);
     }
 
+    public AdminKeyboardMarkupFactory getAdminKeyboardFactory() {
+        return AdminKeyboardFactoryProvider.getKeyboardFactory(this);
+    }
+
     public UnregisteredUserState setUnregisteredState(Update update) {
         return setUnregisteredState(getTelegramUserId(update));
     }
@@ -71,30 +74,30 @@ public class SushnayaBot extends TelegramLongPollingBot {
         return unregisteredUserState;
     }
 
-    public UserDefaultState setUserDefaultState(Update update) {
+    public SushnayaBot setUserDefaultState(Update update) {
         return setUserDefaultState(getTelegramUserId(update));
     }
 
-    public UserDefaultState setUserDefaultState(int userId) {
+    public SushnayaBot setUserDefaultState(int userId) {
         setState(userId, userDefaultState);
-        return userDefaultState;
+        return this;
     }
 
-    public AdminDefaultState setAdminDefaultState(Update update) {
+    public SushnayaBot setAdminDefaultState(Update update) {
         return setAdminDefaultState(getTelegramUserId(update));
     }
 
-    public AdminDefaultState setAdminDefaultState(int userId) {
-        setState(userId, adminDefaultState);
-        return adminDefaultState;
+    public SushnayaBot setAdminDefaultState(int userId) {
+        return setState(userId, adminDefaultState);
     }
 
-    public void setState(Update update, BotState state) {
-        setState(getTelegramUserId(update), state);
+    public SushnayaBot setState(Update update, BotState state) {
+        return setState(getTelegramUserId(update), state);
     }
 
-    public void setState(int userId, BotState state) {
+    public SushnayaBot setState(int userId, BotState state) {
         STATES_BY_TELEGRAM_USER_ID.put(userId, state);
+        return this;
     }
 
     public boolean isRegistered(Integer userId) {
@@ -108,14 +111,6 @@ public class SushnayaBot extends TelegramLongPollingBot {
         if (userId == null) return false;
 
         return dataStorage.getAdmin(userId) != null;
-    }
-
-    public void registerUser(User user) {
-        if (StringUtils.isEmpty(user.getPhoneNumber())) {
-            throw new Error("User phone number must be provided");
-        }
-
-        dataStorage.saveUser(user);
     }
 
     public DataStorage getDataStorage() {
@@ -135,22 +130,33 @@ public class SushnayaBot extends TelegramLongPollingBot {
     }
 
     public void onUpdateReceived(Update update) {
-        Integer userId = getTelegramUserId(update);
+        ensureBotState(getTelegramUserId(update)).handle(update);
+    }
 
-        if (userId == null) return;
+    public void revealMenu(Update update) {
+        handleCommand(update, MENU);
+    }
 
-        if (!ensureBotState(userId).handle(update)) {
-            say(update, MESSAGES.userUnknownCommand(HELP));
-        }
+    public void cancelCurrentOperation(Update update) {
+        handleCommand(update, CANCEL);
+    }
+
+    public void revealHelp(Update update) {
+        handleCommand(update, HELP);
+    }
+
+    public void handleCommand(Update update, Command command) {
+        ensureBotState(getTelegramUserId(update))
+                .handle(update, command);
     }
 
     private BotState ensureBotState(Integer telegramUserId) {
         BotState botState = STATES_BY_TELEGRAM_USER_ID.get(telegramUserId);
 
         if (botState == null) {
-            botState = isAdmin(telegramUserId) ? new AdminDefaultState(this) :
-                    isRegistered(telegramUserId) ? new UserDefaultState(this) :
-                            new UnregisteredUserState(this);
+            botState = isAdmin(telegramUserId) ? adminDefaultState :
+                    isRegistered(telegramUserId) ? userDefaultState :
+                            unregisteredUserState;
 
             STATES_BY_TELEGRAM_USER_ID.put(telegramUserId, botState);
         }
@@ -168,14 +174,6 @@ public class SushnayaBot extends TelegramLongPollingBot {
 
     public boolean isLocalityAlreadyBoundToMenu(Locality locality) {
         return dataStorage.isLocalityAlreadyBoundToMenu(locality);
-    }
-
-    public KeyboardMarkupFactory getKeyboardMarkupFactory(Update update) {
-        return getKeyboardMarkupFactory(UpdateUtil.getTelegramUserId(update));
-    }
-
-    public KeyboardMarkupFactory getKeyboardMarkupFactory(Integer userId) {
-        return ensureBotState(userId).getKeyboardMarkupFactory();
     }
 
     public String getFilePath(PhotoSize photo) throws TelegramApiException {
@@ -248,13 +246,5 @@ public class SushnayaBot extends TelegramLongPollingBot {
 
     public List<Menu> getMenusWithPublishedProducts() {
         return getDataStorage().getMenusWithPublishedProducts();
-    }
-
-    public void menu(Update update) {
-        final Integer userId = getTelegramUserId(update);
-
-        if(userId == null) return;
-
-        ensureBotState(userId).menu(update);
     }
 }

@@ -14,7 +14,7 @@ public class Product extends Entity {
     private String subheading;
     private String description;
     private String imageUri;
-    private String telegramFilePath;
+    private String telegramFileId;
     private int likesCount;
     private List<Comment> comments;
     private boolean isPublished;
@@ -37,12 +37,12 @@ public class Product extends Entity {
         this.menuCategory = menuCategory;
     }
 
-    public String getTelegramFilePath() {
-        return telegramFilePath;
+    public String getTelegramFileId() {
+        return telegramFileId;
     }
 
-    public void setTelegramFilePath(String telegramFilePath) {
-        this.telegramFilePath = telegramFilePath;
+    public void setTelegramFileId(String telegramFileId) {
+        this.telegramFileId = telegramFileId;
     }
 
     public MenuCategory getMenuCategory() {
@@ -66,7 +66,7 @@ public class Product extends Entity {
     }
 
     public void setPrice(Double price) {
-        this.price = price;
+        this.price = Math.abs(price);
     }
 
     public String getDescription() {
@@ -154,12 +154,12 @@ public class Product extends Entity {
                 Objects.equals(getSubheading(), product.getSubheading()) &&
                 Objects.equals(getDescription(), product.getDescription()) &&
                 Objects.equals(getImageUri(), product.getImageUri()) &&
-                Objects.equals(getTelegramFilePath(), product.getTelegramFilePath()) &&
+                Objects.equals(getTelegramFileId(), product.getTelegramFileId()) &&
                 Objects.equals(getComments(), product.getComments());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), getMenuCategory(), getName(), getPrice(), getSubheading(), getDescription(), getImageUri(), getTelegramFilePath(), getLikesCount(), getComments(), isPublished());
+        return Objects.hash(super.hashCode(), getMenuCategory(), getName(), getPrice(), getSubheading(), getDescription(), getImageUri(), getTelegramFileId(), getLikesCount(), getComments(), isPublished());
     }
 }

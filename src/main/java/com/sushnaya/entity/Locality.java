@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.Objects;
 
+import static org.apache.commons.lang3.StringUtils.capitalize;
+
 public class Locality extends Entity {
     private String name;
     private String description;
@@ -17,7 +19,7 @@ public class Locality extends Entity {
     }
 
     public String getName() {
-        return name;
+        return capitalize(name);
     }
 
     public void setName(String name) {
@@ -32,7 +34,7 @@ public class Locality extends Entity {
         this.description = description;
     }
 
-    public String getDisplayName() {
+    public String getFullName() {
         return new StringBuilder().append(getName()).append(", ")
                 .append(getDescription()).toString();
     }

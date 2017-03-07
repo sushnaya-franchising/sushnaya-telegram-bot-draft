@@ -9,6 +9,8 @@ import java.util.Comparator;
 import java.util.List;
 
 public class UpdateUtil {
+    private static final NullUser NULL_USER = new NullUser();
+
     private UpdateUtil() {
     }
 
@@ -30,35 +32,31 @@ public class UpdateUtil {
     }
 
     public static User getFrom(Update update) {
-        User from = null;
-
         if (update.hasInlineQuery()) {
-            from = update.getInlineQuery().getFrom();
+            return update.getInlineQuery().getFrom();
 
         } else if (update.hasEditedMessage()) {
-            from = update.getEditedMessage().getFrom();
+            return update.getEditedMessage().getFrom();
 
         } else if (update.hasCallbackQuery()) {
-            from = update.getCallbackQuery().getFrom();
+            return update.getCallbackQuery().getFrom();
 
         } else if (update.hasMessage()) {
-            from = update.getMessage().getFrom();
+            return update.getMessage().getFrom();
         }
 
-        return from;
+        return NULL_USER;
     }
 
-    public static Integer getTelegramUserId(Update update) {
-        User from = getFrom(update);
-
-        return from != null ? from.getId() : null;
+    public static int getTelegramUserId(Update update) {
+        return getFrom(update).getId();
     }
 
-    public static Long getChatId(Update update) {
-        return update.hasMessage() ? update.getMessage().getChatId() :
-                update.hasEditedMessage() ? update.getEditedMessage().getChatId() :
-                        update.hasCallbackQuery() ? update.getCallbackQuery().getMessage().getChatId() :
-                                null;
+    public static long getChatId(Update update) {
+        return update.hasMessage() ?
+                update.getMessage().getChatId() : update.hasEditedMessage() ?
+                update.getEditedMessage().getChatId() : update.hasCallbackQuery() ?
+                update.getCallbackQuery().getMessage().getChatId() : -1;
     }
 
     public static int getMessageId(Update update) {
@@ -68,5 +66,12 @@ public class UpdateUtil {
     public static Message getMessage(Update update) {
         return update.hasMessage() ? update.getMessage() :
                 update.getCallbackQuery().getMessage();
+    }
+
+    private static final class NullUser extends User {
+        @Override
+        public Integer getId() {
+            return -1;
+        }
     }
 }

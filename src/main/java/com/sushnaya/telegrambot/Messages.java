@@ -27,6 +27,7 @@ public class Messages {
     private final MessageFormat skipProductSubheadingStepHelpFormat;
     private final MessageFormat skipProductDescriptionStepHelpFormat;
     private final MessageFormat userHelpFormat;
+    private final MessageFormat adminHelpFormat;
     private final MessageFormat userUnknownCommandFormat;
     private final MessageFormat dashboardDefaultMessageFormat;
     private final MessageFormat menuCreationIsCancelledFormat;
@@ -41,6 +42,8 @@ public class Messages {
     private final MessageFormat productCreationInquireMenuCreationFormat;
     private final MessageFormat productCreationInquireCategoryCreationFormat;
     private final MessageFormat productCreationIsSuccessfulFormat;
+    private final MessageFormat userMenuDefaultMessageFormat;
+    private final MessageFormat nextProductFormat;
 
     public static Messages getDefaultMessages() {
         if (DEFAULT_MESSAGES == null) {
@@ -89,6 +92,7 @@ public class Messages {
         skipProductDescriptionStepHelpFormat = new MessageFormat(
                 messages.getString("help.skip_product_description_step"), locale);
         userHelpFormat = new MessageFormat(messages.getString("user.help"), locale);
+        adminHelpFormat = new MessageFormat(messages.getString("admin.help"), locale);
         userUnknownCommandFormat = new MessageFormat(
                 messages.getString("user.unknown_command"), locale);
         dashboardDefaultMessageFormat = new MessageFormat(
@@ -117,6 +121,10 @@ public class Messages {
                 messages.getString("product_creation.category_creation_inquiry"), locale);
         productCreationIsSuccessfulFormat = new MessageFormat(
                 messages.getString("product_creation.successful"), locale);
+        userMenuDefaultMessageFormat = new MessageFormat(
+                messages.getString("user.menu.default_message"));
+        nextProductFormat = new MessageFormat(
+                messages.getString("next_product"));
     }
 
     public String askProductPriceForProductCreation() {
@@ -254,7 +262,7 @@ public class Messages {
     }
 
     public String askLocalityConfirmationForMenuCreation(Locality locality) {
-        Object[] args = {locality.getDisplayName()};
+        Object[] args = {locality.getFullName()};
         return askLocalityConfirmationForMenuCreationFormat.format(args);
     }
 
@@ -379,17 +387,17 @@ public class Messages {
         return messages.getString("greeting");
     }
 
-    public String userMenuDefaultMessage() {
-        return messages.getString("user.menu.default_message");
+    public String userMenuDefaultMessage(Menu menu) {
+        Object[] args = {menu.getLocality().getName()};
+        return userMenuDefaultMessageFormat.format(args);
     }
 
-    public String userMenuNoProductsMessage() {
+    public String noProductsUserMessage() {
         return messages.getString("user.menu.no_products_message");
     }
 
-    public String userHelp(Command menuCommand, Command helpCommand,
-                           Command skipCommand, Command cancelCommand) {
-        Object[] args = {menuCommand.getUri(), helpCommand.getUri(), skipCommand.getUri(), cancelCommand.getUri()};
+    public String userHelp(Command menuCommand, Command helpCommand, Command cancelCommand) {
+        Object[] args = {menuCommand.getUri(), helpCommand.getUri(), cancelCommand.getUri()};
         return userHelpFormat.format(args);
     }
 
@@ -498,7 +506,7 @@ public class Messages {
     }
 
     public String menuCreationIsSuccessful(Menu menu) {
-        Object[] args = {menu.getLocality().getDisplayName()};
+        Object[] args = {menu.getLocality().getFullName()};
         return menuCreationIsSuccessfulFormat.format(args);
     }
 
@@ -557,11 +565,24 @@ public class Messages {
     }
 
     public String productCreationIsSuccessful(Product product) {
-        Object[] args = {product.getDisplayName(locale)};
+        Object[] args = {product.getDisplayName(locale),
+                product.getMenuCategory().getDisplayName()};
         return productCreationIsSuccessfulFormat.format(args);
     }
 
     public String proposeFurtherCommandsForProductCreation() {
         return proposeFurtherCommandsForMenuCreation();
+    }
+
+    public String adminHelp(Command dashboardCommand, Command createProductCommand,
+                            Command createCategoryCommand, Command createMenuCommand) {
+        Object[] args = {dashboardCommand.getUri(), createProductCommand.getUri(),
+                createCategoryCommand.getUri(), createMenuCommand.getUri()};
+        return adminHelpFormat.format(args);
+    }
+
+    public String nextProduct(int nextProductNumber, int productsCount) {
+        Object[] args = {nextProductNumber, productsCount};
+        return nextProductFormat.format(args);
     }
 }
