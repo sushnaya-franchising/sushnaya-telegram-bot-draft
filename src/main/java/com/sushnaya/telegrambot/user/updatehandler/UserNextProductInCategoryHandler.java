@@ -3,6 +3,7 @@ package com.sushnaya.telegrambot.user.updatehandler;
 import com.sushnaya.entity.MenuCategory;
 import com.sushnaya.entity.Product;
 import com.sushnaya.telegrambot.Command;
+import com.sushnaya.telegrambot.DataStorage;
 import com.sushnaya.telegrambot.SushnayaBot;
 import com.sushnaya.telegrambot.SushnayaBotUpdateHandler;
 import com.sushnaya.telegrambot.util.KeyboardMarkupUtil;
@@ -17,10 +18,10 @@ import java.util.List;
 import static com.sushnaya.telegrambot.Command.*;
 import static com.sushnaya.telegrambot.SushnayaBot.MESSAGES;
 import static com.sushnaya.telegrambot.util.UpdateUtil.getChatId;
+import static java.lang.String.format;
 
 public class UserNextProductInCategoryHandler extends SushnayaBotUpdateHandler {
-
-    public static final int TELEGRAM_PHOTO_CAPTION_MAX_LENGTH = 200;
+    private static final int PROGRESS_BAR_MAX_SIZE = 53;
 
     public UserNextProductInCategoryHandler(SushnayaBot bot) {
         super(bot);
@@ -53,33 +54,27 @@ public class UserNextProductInCategoryHandler extends SushnayaBotUpdateHandler {
     }
 
     private void showProduct(Update update, Product product, int cursor) {
-        final int nextProductCursor = cursor + 1;
+        final DataStorage storage = bot.getDataStorage();
+        final int productsCount = storage.getCategoryPublishedProductsCount(
+                product.getCategory().getId());
         final int categoryId = product.getCategory().getId();
-        final int productsCount = bot.getDataStorage()
-                .getCategoryPublishedProductsCount(categoryId);
-        final String displayName = product.getDisplayNameWithPrice(MESSAGES.getLocale());
+        final double progressPct = getProgressPct(cursor, productsCount);
+        final String progressStr = getProgressStr(progressPct);
+        final String heading = format("<b>%s</b>", product.getDisplayNameWithPrice(
+                MESSAGES.getLocale()));
         final String subheading = product.getSubheading();
-        final String message = subheading != null ? displayName + "\n\n" + subheading : displayName;
-        final InlineKeyboardMarkup keyboard = productKeyboard(
-                categoryId, nextProductCursor, productsCount);
+        final String message = (subheading == null ? heading :
+                format("%s\n\n%s", heading, subheading)) + "\n" + progressStr;
+        final InlineKeyboardMarkup keyboard = getNextProductKeyboard(
+                categoryId, cursor, productsCount);
 
         if (product.hasTelegramPhotoFile()) {
-            SendPhoto photo = new SendPhoto()
+            sendPhoto(bot, new SendPhoto()
                     .setChatId(getChatId(update))
-                    .setPhoto(product.getTelegramPhotoFileId());
-
-            if (message.length() <= TELEGRAM_PHOTO_CAPTION_MAX_LENGTH) {
-                sendPhoto(bot, photo.setCaption(message)
-                        .setReplyMarkup(keyboard));
-
-            } else {
-                sendPhoto(bot, photo);
-                bot.say(update, message, keyboard);
-            }
-
-        } else {
-            bot.say(update, message, keyboard);
+                    .setPhoto(product.getTelegramPhotoFileId()));
         }
+
+        bot.say(update, message, keyboard);
     }
 
     private void sendPhoto(SushnayaBot bot, SendPhoto sendPhoto) {
@@ -90,20 +85,33 @@ public class UserNextProductInCategoryHandler extends SushnayaBotUpdateHandler {
         }
     }
 
-    private InlineKeyboardMarkup productKeyboard(
-            int categoryId, int nextProductCursor, int productsCount) {
-        if (nextProductCursor > productsCount) throw new IndexOutOfBoundsException();
+    private InlineKeyboardMarkup getNextProductKeyboard(int categoryId, int cursor, int productsCount) {
+        final int nextProductCursor = cursor + 1;
 
-        if (nextProductCursor == productsCount) {
+        if (nextProductCursor >= productsCount) {
             return KeyboardMarkupUtil.singleButtonInlineKeyboard(MESSAGES.menu(), MENU.getUri());
 
         } else {
-            final String buttonText = MESSAGES.nextProduct(
-                    nextProductCursor + 1, productsCount);
             final String commandUri = buildCommandUri(NEXT_PRODUCT_IN_CATEGORY,
                     categoryId, nextProductCursor);
 
-            return KeyboardMarkupUtil.singleButtonInlineKeyboard(buttonText, commandUri);
+            return KeyboardMarkupUtil.singleButtonInlineKeyboard(MESSAGES.more(), commandUri);
         }
+    }
+
+    private String getProgressStr(double progressPct) {
+        final int progressMax = PROGRESS_BAR_MAX_SIZE - 2;
+        final int progressSymbols = (int) Math.ceil(progressPct * progressMax / 100.);
+        final StringBuilder result = new StringBuilder().append("<b>.</b>");
+
+        for (int i = 0; i < progressMax; i++) {
+            result.append(i < progressSymbols ? '.' : ' ');
+        }
+
+        return result.append("<b>.</b>").toString();
+    }
+
+    private double getProgressPct(int cursor, double productsCount) {
+        return 100 * (double) (cursor + 1) / productsCount;
     }
 }

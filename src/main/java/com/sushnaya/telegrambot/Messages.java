@@ -43,7 +43,6 @@ public class Messages {
     private final MessageFormat productCreationInquireCategoryCreationFormat;
     private final MessageFormat productCreationIsSuccessfulFormat;
     private final MessageFormat userMenuDefaultMessageFormat;
-    private final MessageFormat nextProductFormat;
     private final MessageFormat noCategoryWasCreatedToEditFormat;
     private final MessageFormat noProductWasCreatedToEditFormat;
     private final MessageFormat productSettingsFormat;
@@ -129,8 +128,6 @@ public class Messages {
                 messages.getString("product_creation.successful"), locale);
         userMenuDefaultMessageFormat = new MessageFormat(
                 messages.getString("user.menu.default_message"));
-        nextProductFormat = new MessageFormat(
-                messages.getString("next_product"));
         noCategoryWasCreatedToEditFormat = new MessageFormat(
                 messages.getString("no_category_was_created_to_edit"));
         noProductWasCreatedToEditFormat = new MessageFormat(
@@ -599,9 +596,8 @@ public class Messages {
         return adminHelpFormat.format(args);
     }
 
-    public String nextProduct(int nextProductNumber, int productsCount) {
-        Object[] args = {nextProductNumber, productsCount};
-        return nextProductFormat.format(args);
+    public String nextProduct() {
+        return messages.getString("next_product");
     }
 
     public String selectMenuToEditCategoryIn() {
@@ -703,5 +699,9 @@ public class Messages {
         Object[] args = {menu.getLocalityName(), menu.getCategories().size(), productsCount};
 
         return menuSettingsFormat.format(args);
+    }
+
+    public String more() {
+        return messages.getString("more");
     }
 }
