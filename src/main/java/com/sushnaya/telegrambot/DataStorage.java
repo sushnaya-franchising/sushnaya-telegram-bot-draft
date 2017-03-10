@@ -162,8 +162,8 @@ public class DataStorage {
         MENUS_BY_ID.put(menu.getId(), menu);
         // if selectCategoryKeyboard is already bound to locality
         saveLocality(menu.getLocality());
-        menu.getMenuCategories().forEach(this::saveCategory);
-        MENU_CATEGORIES_BY_MENU_ID.put(menu.getId(), menu.getMenuCategories());
+        menu.getCategories().forEach(this::saveCategory);
+        MENU_CATEGORIES_BY_MENU_ID.put(menu.getId(), menu.getCategories());
     }
 
     public void saveCategory(MenuCategory category) {
@@ -200,7 +200,7 @@ public class DataStorage {
         if (!hasProducts()) return false;
 
         for (Product product : getPublishedProducts()) {
-            if (product.getMenuCategory().getMenu().getId() == menuId && product.isPublished())
+            if (product.getCategory().getMenu().getId() == menuId && product.isPublished())
                 return true;
         }
 
@@ -248,8 +248,8 @@ public class DataStorage {
         return result;
     }
 
-    public List<Product> getPublishedProducts(Integer categoryId, int cursor, int count) {
-        if (cursor < 0 || count < 1 || categoryId == null) return null;
+    public List<Product> getPublishedProducts(int categoryId, int cursor, int count) {
+        if (cursor < 0 || count < 1) return null;
 
         final List<Product> products = getCategoryPublishedProducts(categoryId);
 
@@ -259,18 +259,18 @@ public class DataStorage {
         return products.subList(from, to);
     }
 
-    public List<Product> getCategoryPublishedProducts(Integer categoryId) {
-        if (categoryId == null) return null;
-
+    public List<Product> getCategoryPublishedProducts(int categoryId) {
         final MenuCategory menuCategory = getMenuCategory(categoryId);
 
         return menuCategory.getProducts().stream()
                 .filter(Product::isPublished).collect(Collectors.toList());
     }
 
-    public int getCategoryPublishedProductsCount(Integer categoryId) {
-        if (categoryId == null) return 0;
-
+    public int getCategoryPublishedProductsCount(int categoryId) {
         return getCategoryPublishedProducts(categoryId).size();
+    }
+
+    public Product getProduct(int productId) {
+        return PRODUCTS_BY_ID.get(productId);
     }
 }

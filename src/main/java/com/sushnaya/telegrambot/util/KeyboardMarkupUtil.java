@@ -3,6 +3,7 @@ package com.sushnaya.telegrambot.util;
 import com.google.common.collect.Lists;
 import com.sushnaya.entity.Menu;
 import com.sushnaya.entity.MenuCategory;
+import com.sushnaya.entity.Product;
 import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardMarkup;
@@ -11,6 +12,7 @@ import org.telegram.telegrambots.api.objects.replykeyboard.buttons.InlineKeyboar
 import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardRow;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
@@ -53,6 +55,15 @@ public class KeyboardMarkupUtil {
 
         row.add(columnIndex, new InlineKeyboardButton().setText(text)
                 .setCallbackData(callbackData));
+
+        return markup;
+    }
+
+    public static InlineKeyboardMarkup addFirstButton(InlineKeyboardMarkup markup,
+                                                    String text, String callbackData) {
+        markup.getKeyboard().add(0, Lists.newArrayList(
+                new InlineKeyboardButton().setText(text).setCallbackData(callbackData)
+        ));
 
         return markup;
     }
@@ -107,19 +118,27 @@ public class KeyboardMarkupUtil {
     public static InlineKeyboardMarkup selectMenuKeyboard(
             List<Menu> menus, Function<Menu, String> callbackDataProvider) {
         final Function<Menu, String> buttonTextProvider = Menu::getLocalityName;
+
         return twoColumnsInlineKeyboard(menus, buttonTextProvider, callbackDataProvider);
     }
 
     public static InlineKeyboardMarkup selectCategoryKeyboard(List<MenuCategory> categories) {
         final Function<MenuCategory, String> callbackDataProvider =
                 c -> buildCommandUri(NEXT_PRODUCT_IN_CATEGORY, c.getId());
+
         return selectCategoryKeyboard(categories, callbackDataProvider);
     }
 
     public static InlineKeyboardMarkup selectCategoryKeyboard(
             List<MenuCategory> categories, Function<MenuCategory, String> callbackDataProvider) {
         final Function<MenuCategory, String> buttonTextProvider = MenuCategory::getDisplayName;
+
         return twoColumnsInlineKeyboard(categories, buttonTextProvider, callbackDataProvider);
         // todo: add search button when search will be integrated
+    }
+
+    public static InlineKeyboardMarkup selectProductKeyboard(
+            List<Product> products, Function<Product, String> callbackDataProvider) {
+        return twoColumnsInlineKeyboard(products, Product::getDisplayName, callbackDataProvider);
     }
 }

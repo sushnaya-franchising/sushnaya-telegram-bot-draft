@@ -106,7 +106,7 @@ public class ProductCreationDialog extends AdminBotDialogState<Product> {
                 .then((u, productName) -> {
                     product.setName(productName);
 
-                    final String productDisplayName = product.getDisplayName(MESSAGES.getLocale());
+                    final String productDisplayName = product.getDisplayNameWithPrice(MESSAGES.getLocale());
 
                     priceStep.ask(u, MESSAGES.valueConfirmation(productDisplayName) + " " +
                             MESSAGES.askProductPriceForProductCreation());
@@ -115,7 +115,7 @@ public class ProductCreationDialog extends AdminBotDialogState<Product> {
         priceStep.then((u, productPrice) -> {
             product.setPrice(productPrice);
 
-            final String productDisplayName = product.getDisplayName(MESSAGES.getLocale());
+            final String productDisplayName = product.getDisplayNameWithPrice(MESSAGES.getLocale());
 
             photoStep.ask(u, MESSAGES.valueConfirmation(productDisplayName) + " " +
                     MESSAGES.askProductPhotoForProductCreation());

@@ -10,7 +10,6 @@ import static com.sushnaya.telegrambot.Command.*;
 import static com.sushnaya.telegrambot.SushnayaBot.MESSAGES;
 
 public class CreateMenuHandler extends SushnayaBotUpdateHandler {
-    private MenuCreationDialog menuCreationDialog;
 
     public CreateMenuHandler(SushnayaBot bot) {
         super(bot);
@@ -18,18 +17,14 @@ public class CreateMenuHandler extends SushnayaBotUpdateHandler {
 
     @Override
     public void handle(Update update) {
-        ensureMenuCreationDialog().ask(update).then((u, menu) -> {
+        // todo: refactor design to avoid new instance creation
+        new MenuCreationDialog(bot).ask(update).then((u, menu) -> {
             bot.setAdminDefaultState(u);
             bot.getDataStorage().saveMenu(menu);
             bot.say(u, MESSAGES.menuCreationIsSuccessful(menu), true);
             bot.say(u, MESSAGES.proposeFurtherCommandsForMenuCreation(),
                     bot.getAdminKeyboardFactory().menuCreationFurtherCommands(menu));
         }).onCancel(this::cancelMenuCreation);
-    }
-
-    private MenuCreationDialog ensureMenuCreationDialog() {
-        return menuCreationDialog != null ? menuCreationDialog :
-                (menuCreationDialog = new MenuCreationDialog(bot));
     }
 
     private void cancelMenuCreation(Update u) {

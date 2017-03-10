@@ -81,7 +81,7 @@ public class CategoryCreationDialog extends AdminBotDialogState<MenuCategory> {
         });
 
         photoStep.then((u, categoryPhotoFilePath) -> {
-            category.setTelegramFilePath(categoryPhotoFilePath);
+            category.setTelegramPhotoFileId(categoryPhotoFilePath);
 
             getThen().accept(u, category);
         });

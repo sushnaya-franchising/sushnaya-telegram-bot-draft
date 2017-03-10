@@ -39,11 +39,9 @@ public class MenuCreationDialog extends AdminBotDialogState<Menu> {
         steps = new AdminBotDialogState[]{
                 localityStep = (AskLocalityState) new AskLocalityState(bot)
                         .setDefaultMessage(MESSAGES.askLocality())
-                        .setHelpMessage(MESSAGES.askLocalityHelp() + "\n\n" +
-                                MESSAGES.cancelMenuCreationHelp(CANCEL)),
+                        .setHelpMessage(MESSAGES.askLocalityHelp()),
 
                 localityConfirmationStep = (AskCommandState) new AskCommandState(bot)
-                        .setHelpMessage(MESSAGES.cancelMenuCreationHelp(CANCEL))
                         .setDefaultKeyboard(bot.getAdminKeyboardFactory().localityAlreadyBoundToMenuMarkup())
                         .ifThen(EDIT_LOCALITY, localityStep::ask)
                         .ifThen(ADMIN_DASHBOARD, u -> {

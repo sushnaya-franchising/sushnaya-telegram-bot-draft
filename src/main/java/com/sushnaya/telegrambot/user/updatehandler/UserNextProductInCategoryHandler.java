@@ -54,10 +54,10 @@ public class UserNextProductInCategoryHandler extends SushnayaBotUpdateHandler {
 
     private void showProduct(Update update, Product product, int cursor) {
         final int nextProductCursor = cursor + 1;
-        final int categoryId = product.getMenuCategory().getId();
+        final int categoryId = product.getCategory().getId();
         final int productsCount = bot.getDataStorage()
                 .getCategoryPublishedProductsCount(categoryId);
-        final String displayName = product.getDisplayName(MESSAGES.getLocale());
+        final String displayName = product.getDisplayNameWithPrice(MESSAGES.getLocale());
         final String subheading = product.getSubheading();
         final String message = subheading != null ? displayName + "\n\n" + subheading : displayName;
         final InlineKeyboardMarkup keyboard = productKeyboard(
@@ -100,9 +100,8 @@ public class UserNextProductInCategoryHandler extends SushnayaBotUpdateHandler {
         } else {
             final String buttonText = MESSAGES.nextProduct(
                     nextProductCursor + 1, productsCount);
-            final ByteBuffer commandUriPayload = ByteBuffer.allocate(8)
-                    .putInt(categoryId).putInt(nextProductCursor);
-            final String commandUri = buildCommandUri(NEXT_PRODUCT_IN_CATEGORY, commandUriPayload);
+            final String commandUri = buildCommandUri(NEXT_PRODUCT_IN_CATEGORY,
+                    categoryId, nextProductCursor);
 
             return KeyboardMarkupUtil.singleButtonInlineKeyboard(buttonText, commandUri);
         }

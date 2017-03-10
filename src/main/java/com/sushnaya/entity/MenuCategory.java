@@ -11,8 +11,8 @@ import java.util.Objects;
 public class MenuCategory extends Entity {
     private String name;
     private String subheading;
-    private String imageUri;
-    private String telegramFilePath;
+    private String photoUri;
+    private String telegramPhotoFileId;
     private List<Product> products;
     private Menu menu;
 
@@ -54,20 +54,20 @@ public class MenuCategory extends Entity {
         this.subheading = subheading;
     }
 
-    public String getImageUri() {
-        return imageUri;
+    public String getPhotoUri() {
+        return photoUri;
     }
 
-    public void setImageUri(String imageUri) {
-        this.imageUri = imageUri;
+    public void setPhotoUri(String photoUri) {
+        this.photoUri = photoUri;
     }
 
-    public String getTelegramFilePath() {
-        return telegramFilePath;
+    public String getTelegramPhotoFileId() {
+        return telegramPhotoFileId;
     }
 
-    public void setTelegramFilePath(String telegramFilePath) {
-        this.telegramFilePath = telegramFilePath;
+    public void setTelegramPhotoFileId(String telegramPhotoFileId) {
+        this.telegramPhotoFileId = telegramPhotoFileId;
     }
 
     public List<Product> getProducts() {
@@ -116,19 +116,35 @@ public class MenuCategory extends Entity {
         MenuCategory category = (MenuCategory) o;
         return Objects.equals(getName(), category.getName()) &&
                 Objects.equals(getSubheading(), category.getSubheading()) &&
-                Objects.equals(getImageUri(), category.getImageUri()) &&
-                Objects.equals(getTelegramFilePath(), category.getTelegramFilePath()) &&
+                Objects.equals(getPhotoUri(), category.getPhotoUri()) &&
+                Objects.equals(getTelegramPhotoFileId(), category.getTelegramPhotoFileId()) &&
                 Objects.equals(getProducts(), category.getProducts()) &&
                 Objects.equals(getMenu(), category.getMenu());
     }
 
     public int hashCode() {
-        return Objects.hash(super.hashCode(), getName(), getSubheading(), getImageUri(), getTelegramFilePath(), getProducts(), getMenu());
+        return Objects.hash(super.hashCode(), getName(), getSubheading(), getPhotoUri(), getTelegramPhotoFileId(), getProducts(), getMenu());
     }
 
     public boolean hasPublishedProducts() {
         if (getProducts() == null) return false;
 
         return getProducts().stream().anyMatch(Product::isPublished);
+    }
+
+    public boolean hasPhoto() {
+        return hasTelegramPhotoFile() || hasPhotoUri();
+    }
+
+    public boolean hasPhotoUri() {
+        return photoUri != null;
+    }
+
+    public boolean hasTelegramPhotoFile() {
+        return getTelegramPhotoFileId() != null;
+    }
+
+    public boolean hasSubheading() {
+        return subheading != null;
     }
 }

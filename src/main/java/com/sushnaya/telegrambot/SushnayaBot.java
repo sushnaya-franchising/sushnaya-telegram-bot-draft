@@ -8,6 +8,7 @@ import com.sushnaya.entity.User;
 import com.sushnaya.telegrambot.admin.keyboard.AdminKeyboardFactoryProvider;
 import com.sushnaya.telegrambot.admin.keyboard.AdminKeyboardMarkupFactory;
 import com.sushnaya.telegrambot.admin.state.AdminDefaultState;
+import com.sushnaya.telegrambot.user.keyboard.UserKeyboardMarkupFactory;
 import com.sushnaya.telegrambot.user.state.UnregisteredUserState;
 import com.sushnaya.telegrambot.user.state.UserDefaultState;
 import org.apache.http.client.HttpClient;
@@ -61,8 +62,16 @@ public class SushnayaBot extends TelegramLongPollingBot {
         adminDefaultState = new AdminDefaultState(this);
     }
 
+    public KeyboardMarkupFactory getKeyboardFactory(User user) {
+        return KeyboardFactoryProvider.getKeyboardFactory(user, this);
+    }
+
     public AdminKeyboardMarkupFactory getAdminKeyboardFactory() {
-        return AdminKeyboardFactoryProvider.getKeyboardFactory(this);
+        return KeyboardFactoryProvider.getAdminKeyboardFactory(this);
+    }
+
+    public UserKeyboardMarkupFactory getUserKeyboardFactory() {
+        return KeyboardFactoryProvider.getUserKeyboardFactory();
     }
 
     public UnregisteredUserState setUnregisteredState(Update update) {
@@ -232,6 +241,15 @@ public class SushnayaBot extends TelegramLongPollingBot {
 
         } catch (TelegramApiException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void answer(Update update, String message, InlineKeyboardMarkup keyboard) {
+        if (update.hasCallbackQuery()) {
+            edit(update, message, keyboard);
+
+        } else {
+            say(update, message, keyboard);
         }
     }
 

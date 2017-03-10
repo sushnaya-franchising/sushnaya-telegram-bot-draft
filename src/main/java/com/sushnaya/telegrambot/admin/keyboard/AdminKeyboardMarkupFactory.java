@@ -2,10 +2,12 @@ package com.sushnaya.telegrambot.admin.keyboard;
 
 import com.sushnaya.entity.Menu;
 import com.sushnaya.entity.MenuCategory;
+import com.sushnaya.entity.Product;
+import com.sushnaya.telegrambot.KeyboardMarkupFactory;
 import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboard;
 
-public interface AdminKeyboardMarkupFactory {
+public interface AdminKeyboardMarkupFactory extends KeyboardMarkupFactory {
 
     InlineKeyboardMarkup dashboardMarkup();
 
@@ -39,4 +41,9 @@ public interface AdminKeyboardMarkupFactory {
 
     ReplyKeyboard productCreationCompletion(boolean suggestToAddSubheading, boolean suggestToAddDescription);
 
+    InlineKeyboardMarkup editMenu(Menu menu);
+
+    InlineKeyboardMarkup editCategory(MenuCategory category);
+
+    InlineKeyboardMarkup editProduct(Product product);
 }

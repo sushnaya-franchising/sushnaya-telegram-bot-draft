@@ -3,7 +3,9 @@ package com.sushnaya.telegrambot.admin.keyboard;
 import com.google.common.collect.Lists;
 import com.sushnaya.entity.Menu;
 import com.sushnaya.entity.MenuCategory;
-import com.sushnaya.telegrambot.util.KeyboardMarkupUtil;
+import com.sushnaya.entity.Product;
+import com.sushnaya.telegrambot.KeyboardFactoryProvider;
+import com.sushnaya.telegrambot.SushnayaBot;
 import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardMarkup;
@@ -13,18 +15,11 @@ import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardRow;
 import java.util.List;
 
 import static com.sushnaya.telegrambot.Command.*;
+import static com.sushnaya.telegrambot.CommandUriParamType.*;
 import static com.sushnaya.telegrambot.SushnayaBot.MESSAGES;
 import static com.sushnaya.telegrambot.util.KeyboardMarkupUtil.singleButtonOneTimeKeyboard;
 
 class StartupAdminKeyboardMarkupFactory implements AdminKeyboardMarkupFactory {
-
-    public InlineKeyboardMarkup selectMenuKeyboard(List<Menu> menus) {
-        return KeyboardMarkupUtil.selectMenuKeyboard(menus);
-    }
-
-    public InlineKeyboardMarkup selectCategoryKeyboard(Menu menu) {
-        return KeyboardMarkupUtil.selectCategoryKeyboard(menu.getMenuCategories());
-    }
 
     public InlineKeyboardMarkup dashboardMarkup() {
         List<List<InlineKeyboardButton>> keyboard = Lists.newArrayList();
@@ -39,8 +34,8 @@ class StartupAdminKeyboardMarkupFactory implements AdminKeyboardMarkupFactory {
                         .setCallbackData(NOTIFY.getUri())
         ));
         keyboard.add(Lists.newArrayList(
-                new InlineKeyboardButton().setText(MESSAGES.promotions())
-                        .setCallbackData(PROMOTIONS.getUri()),
+                new InlineKeyboardButton().setText(MESSAGES.promotion())
+                        .setCallbackData(PROMOTION.getUri()),
                 new InlineKeyboardButton().setText(MESSAGES.settings())
                         .setCallbackData(SETTINGS.getUri())
         ));
@@ -92,7 +87,7 @@ class StartupAdminKeyboardMarkupFactory implements AdminKeyboardMarkupFactory {
     public InlineKeyboardMarkup menuCreationFurtherCommands(
             Menu menu, MenuCategory categoryToCreateProductIn) {
         final List<List<InlineKeyboardButton>> keyboard = Lists.newArrayList();
-        final int categoriesCount = menu.getMenuCategories().size();
+        final int categoriesCount = menu.getCategories().size();
         final MenuCategory onlyCategory = categoriesCount == 1 ?
                 menu.getFirstCategory() : categoryToCreateProductIn;
 
@@ -107,7 +102,7 @@ class StartupAdminKeyboardMarkupFactory implements AdminKeyboardMarkupFactory {
     protected void appendBackToDashboardButton(List<List<InlineKeyboardButton>> keyboard) {
         keyboard.add(Lists.newArrayList(
                 new InlineKeyboardButton().setText(MESSAGES.backToDashboard())
-                        .setCallbackData(MENU.getUri())
+                        .setCallbackData(ADMIN_DASHBOARD.getUri())
         ));
     }
 
@@ -122,16 +117,18 @@ class StartupAdminKeyboardMarkupFactory implements AdminKeyboardMarkupFactory {
     protected void appendCreateProductInMenuButton(
             List<List<InlineKeyboardButton>> keyboard, Menu menu) {
         keyboard.add(Lists.newArrayList(new InlineKeyboardButton()
-                .setText(MESSAGES.createProductInMenu())
+                .setText(MESSAGES.createProduct())
                 .setCallbackData(buildCommandUri(CREATE_PRODUCT, menu.getId()))
         ));
     }
 
     protected void appendCreateProductInCategoryButton(
             List<List<InlineKeyboardButton>> keyboard, MenuCategory onlyCategory) {
+        final String uri = buildCommandUri(CREATE_PRODUCT, CATEGORY_ID_PARAM, onlyCategory.getId());
+
         keyboard.add(Lists.newArrayList(new InlineKeyboardButton()
                 .setText(MESSAGES.createProductInCategory(onlyCategory.getDisplayName()))
-                .setCallbackData(buildCommandUri(CREATE_PRODUCT_IN_CATEGORY, onlyCategory.getId()))));
+                .setCallbackData(uri)));
     }
 
     @Override
@@ -158,5 +155,83 @@ class StartupAdminKeyboardMarkupFactory implements AdminKeyboardMarkupFactory {
 
         return new ReplyKeyboardMarkup().setKeyboard(keyboard).setResizeKeyboard(true)
                 .setOneTimeKeyboad(true);
+    }
+
+    @Override
+    public InlineKeyboardMarkup editMenu(Menu menu) {
+        List<List<InlineKeyboardButton>> keyboard = Lists.newArrayList();
+        keyboard.add(Lists.newArrayList(
+                new InlineKeyboardButton().setText(MESSAGES.editCategory())
+                        .setCallbackData(buildCommandUri(EDIT_CATEGORY, MENU_ID_PARAM, menu.getId()))
+        ));
+        keyboard.add(Lists.newArrayList(
+                new InlineKeyboardButton().setText(MESSAGES.createCategory())
+                        .setCallbackData(buildCommandUri(CREATE_CATEGORY, menu.getId()))
+        ));
+        keyboard.add(Lists.newArrayList(
+                new InlineKeyboardButton().setText(MESSAGES.deleteMenu())
+                        .setCallbackData(buildCommandUri(DELETE_MENU, menu.getId()))
+        ));
+        keyboard.add(Lists.newArrayList(
+                new InlineKeyboardButton().setText(MESSAGES.backToDashboard())
+                        .setCallbackData(ADMIN_DASHBOARD.getUri())
+        ));
+
+        return new InlineKeyboardMarkup().setKeyboard(keyboard);
+    }
+
+    public InlineKeyboardMarkup editCategory(MenuCategory category) {
+        List<List<InlineKeyboardButton>> keyboard = Lists.newArrayList();
+        final int categoryId = category.getId();
+
+        keyboard.add(Lists.newArrayList(
+                new InlineKeyboardButton().setText(MESSAGES.editProduct())
+                        .setCallbackData(buildCommandUri(EDIT_PRODUCT, CATEGORY_ID_PARAM, categoryId))
+        ));
+        keyboard.add(Lists.newArrayList(
+                new InlineKeyboardButton().setText(MESSAGES.createProduct())
+                        .setCallbackData(buildCommandUri(CREATE_PRODUCT, CATEGORY_ID_PARAM, categoryId))
+        ));
+        keyboard.add(Lists.newArrayList(
+                new InlineKeyboardButton().setText(MESSAGES.deleteCategory())
+                        .setCallbackData(buildCommandUri(DELETE_CATEGORY, CATEGORY_ID_PARAM, categoryId))
+        ));
+        keyboard.add(Lists.newArrayList(
+                new InlineKeyboardButton().setText(MESSAGES.backToEditMenu())
+                        .setCallbackData(buildCommandUri(EDIT_MENU, category.getMenu().getId())),
+                new InlineKeyboardButton().setText(MESSAGES.backToDashboard())
+                        .setCallbackData(ADMIN_DASHBOARD.getUri())
+        ));
+
+        return new InlineKeyboardMarkup().setKeyboard(keyboard);
+    }
+
+    @Override
+    public InlineKeyboardMarkup editProduct(Product product) {
+        List<List<InlineKeyboardButton>> keyboard = Lists.newArrayList();
+        final int productId = product.getId();
+
+        keyboard.add(Lists.newArrayList(
+                new InlineKeyboardButton().setText(MESSAGES.deleteProduct())
+                        .setCallbackData(buildCommandUri(DELETE_PRODUCT, PRODUCT_ID_PARAM, productId))
+        ));
+        keyboard.add(Lists.newArrayList(
+                new InlineKeyboardButton().setText(MESSAGES.backToEditCategory())
+                        .setCallbackData(buildCommandUri(EDIT_CATEGORY, CATEGORY_ID_PARAM, product.getCategory().getId())),
+                new InlineKeyboardButton().setText(MESSAGES.backToDashboard())
+                        .setCallbackData(ADMIN_DASHBOARD.getUri())
+        ));
+
+        return new InlineKeyboardMarkup().setKeyboard(keyboard);
+    }
+
+    @Override
+    public InlineKeyboardMarkup menuCategoriesKeyboard(List<MenuCategory> categories) {
+        return KeyboardFactoryProvider.getUserKeyboardFactory().menuCategoriesKeyboard(categories);
+    }
+
+    @Override
+    public InlineKeyboardMarkup menusKeyboard(List<Menu> menus) {
+        return KeyboardFactoryProvider.getUserKeyboardFactory().menusKeyboard(menus);
     }
 }

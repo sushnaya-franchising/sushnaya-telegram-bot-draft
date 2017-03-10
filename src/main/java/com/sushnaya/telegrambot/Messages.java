@@ -44,6 +44,12 @@ public class Messages {
     private final MessageFormat productCreationIsSuccessfulFormat;
     private final MessageFormat userMenuDefaultMessageFormat;
     private final MessageFormat nextProductFormat;
+    private final MessageFormat noCategoryWasCreatedToEditFormat;
+    private final MessageFormat noProductWasCreatedToEditFormat;
+    private final MessageFormat productSettingsFormat;
+    private final MessageFormat categorySettingsFormat;
+    private final MessageFormat noMenuWasCreatedToEditFormat;
+    private final MessageFormat menuSettingsFormat;
 
     public static Messages getDefaultMessages() {
         if (DEFAULT_MESSAGES == null) {
@@ -125,6 +131,18 @@ public class Messages {
                 messages.getString("user.menu.default_message"));
         nextProductFormat = new MessageFormat(
                 messages.getString("next_product"));
+        noCategoryWasCreatedToEditFormat = new MessageFormat(
+                messages.getString("no_category_was_created_to_edit"));
+        noProductWasCreatedToEditFormat = new MessageFormat(
+                messages.getString("no_product_was_created_to_edit"));
+        productSettingsFormat = new MessageFormat(
+                messages.getString("product_settings"));
+        categorySettingsFormat = new MessageFormat(
+                messages.getString("category_settings"));
+        noMenuWasCreatedToEditFormat = new MessageFormat(
+                messages.getString("no_menu_was_created_to_edit"));
+        menuSettingsFormat = new MessageFormat(
+                messages.getString("menu_settings"));
     }
 
     public String askProductPriceForProductCreation() {
@@ -191,8 +209,8 @@ public class Messages {
         return messages.getString("notify");
     }
 
-    public String promotions() {
-        return messages.getString("promotions");
+    public String promotion() {
+        return messages.getString("promotion");
     }
 
     public String createMenu() {
@@ -223,8 +241,8 @@ public class Messages {
         return messages.getString("delete_category");
     }
 
-    public String editProducts() {
-        return messages.getString("edit_products");
+    public String editProduct() {
+        return messages.getString("edit_product");
     }
 
     public String setProductSubheading() {
@@ -243,8 +261,8 @@ public class Messages {
         return messages.getString("skip_product_publication");
     }
 
-    public String createProductInMenu() {
-        return messages.getString("create_product_in_menu");
+    public String createProduct() {
+        return messages.getString("create_product");
     }
 
     public String createProductInCategory(String categoryDisplayName) {
@@ -565,8 +583,8 @@ public class Messages {
     }
 
     public String productCreationIsSuccessful(Product product) {
-        Object[] args = {product.getDisplayName(locale),
-                product.getMenuCategory().getDisplayName()};
+        Object[] args = {product.getDisplayNameWithPrice(locale),
+                product.getCategory().getDisplayName()};
         return productCreationIsSuccessfulFormat.format(args);
     }
 
@@ -584,5 +602,106 @@ public class Messages {
     public String nextProduct(int nextProductNumber, int productsCount) {
         Object[] args = {nextProductNumber, productsCount};
         return nextProductFormat.format(args);
+    }
+
+    public String selectMenuToEditCategoryIn() {
+        return messages.getString("select_menu_to_edit_category_in");
+    }
+
+    public String noCategoryWasCreatedToEdit(Command createCategoryCommand) {
+        Object[] args = {createCategoryCommand.getUri()};
+        return noCategoryWasCreatedToEditFormat.format(args);
+    }
+
+    public String selectCategoryToEdit() {
+        return messages.getString("select_category_to_edit");
+    }
+
+    public String backToEditMenu() {
+        return messages.getString("back_to_edit_menu");
+    }
+
+    public String noProductWasCreatedToEdit(Command createProductCommand) {
+        Object[] args = {createProductCommand.getUri()};
+        return noProductWasCreatedToEditFormat.format(args);
+    }
+
+    public String selectMenuToEditProductIn() {
+        return messages.getString("select_menu_to_edit_product_in");
+    }
+
+    public String menuContainsNoCategoryWithProducts() {
+        return messages.getString("menu_contains_no_category_with_products");
+    }
+
+    public String selectCategoryToEditProductIn() {
+        return messages.getString("select_category_to_edit_product_in");
+    }
+
+    public String categoryDoesNotContainProducts() {
+        return messages.getString("category_does_not_contain_products");
+    }
+
+    public String editCategory() {
+        return messages.getString("edit_category");
+    }
+
+    public String deleteProduct() {
+        return messages.getString("delete_product");
+    }
+
+    public String backToEditCategory() {
+        return messages.getString("back_to_edit_category");
+    }
+
+    public String selectProductToEdit() {
+        return messages.getString("select_product_to_edit");
+    }
+
+    public String optionalValueIsProvided() {
+        return messages.getString("optional_value_is_provided");
+    }
+
+    public String optionalValueIsNotProvided() {
+        return messages.getString("optional_value_is_not_provided");
+    }
+
+    public String productSettings(Product product) {
+        Object[] args = {
+                product.getDisplayNameWithPrice(getLocale()),
+                product.hasPhoto() ? optionalValueIsProvided() : optionalValueIsNotProvided(),
+                product.hasSubheading() ? optionalValueIsProvided() : optionalValueIsNotProvided(),
+                product.hasDescription() ? optionalValueIsProvided() : optionalValueIsNotProvided()
+        };
+
+        return productSettingsFormat.format(args);
+    }
+
+    public String noMenuWasCreatedToEdit(Command createMenuCommand) {
+        Object[] args = {createMenuCommand.getUri()};
+        return noMenuWasCreatedToEditFormat.format(args);
+    }
+
+    public String selectMenuToEdit() {
+        return messages.getString("select_menu_to_edit");
+    }
+
+    public String categorySettings(MenuCategory category) {
+        Object[] args = {
+                category.getDisplayName(),
+                category.getProducts().size(),
+                category.hasPhoto() ? optionalValueIsProvided() : optionalValueIsNotProvided(),
+                category.hasSubheading() ? optionalValueIsProvided() : optionalValueIsNotProvided(),
+        };
+
+        return categorySettingsFormat.format(args);
+    }
+
+    public String menuSettings(Menu menu) {
+        int productsCount = menu.getCategories()
+                .stream().mapToInt(c -> c.getProducts().size()).sum();
+        Object[] args = {menu.getLocalityName(), menu.getCategories().size(), productsCount};
+
+        return menuSettingsFormat.format(args);
     }
 }

@@ -46,9 +46,12 @@ public abstract class AdminBotDialogState<R> extends AdminDefaultState {
         registerUpdateHandler(CREATE_MENU, cancelBefore(getUpdateHandler(CREATE_MENU)));
         registerUpdateHandler(CREATE_CATEGORY, cancelBefore(getUpdateHandler(CREATE_CATEGORY)));
         registerUpdateHandler(CREATE_PRODUCT, cancelBefore(getUpdateHandler(CREATE_PRODUCT)));
-        registerUpdateHandler(CREATE_PRODUCT_IN_CATEGORY, cancelBefore(getUpdateHandler(CREATE_PRODUCT_IN_CATEGORY)));
+        registerUpdateHandler(EDIT_MENU, cancelBefore(getUpdateHandler(EDIT_MENU)));
+        registerUpdateHandler(EDIT_CATEGORY, cancelBefore(getUpdateHandler(EDIT_CATEGORY)));
+        registerUpdateHandler(EDIT_PRODUCT, cancelBefore(getUpdateHandler(EDIT_PRODUCT)));
         registerUpdateHandler(CANCEL, this::cancel);
         registerUpdateHandler(SKIP, this::skip);
+        // todo: wrap all global commands to cancel
 
         final UpdateHandler originalHelpHandler = getUpdateHandler(HELP);
         registerUpdateHandler(HELP, u -> {

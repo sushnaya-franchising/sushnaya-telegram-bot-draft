@@ -46,14 +46,14 @@ public class Menu extends Entity {
         }
     }
 
-    public List<MenuCategory> getMenuCategories() {
+    public List<MenuCategory> getCategories() {
         if (menuCategories == null) return null;
 
         return Collections.unmodifiableList(menuCategories);
     }
 
     public MenuCategory getFirstCategory() {
-        return getMenuCategories().get(0);
+        return getCategories().get(0);
     }
 
     public Locality getLocality() {
@@ -75,18 +75,18 @@ public class Menu extends Entity {
         if (!super.equals(o)) return false;
         Menu menu = (Menu) o;
         return Objects.equals(getLocality(), menu.getLocality()) &&
-                Objects.equals(getMenuCategories(), menu.getMenuCategories());
+                Objects.equals(getCategories(), menu.getCategories());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), getLocality(), getMenuCategories());
+        return Objects.hash(super.hashCode(), getLocality(), getCategories());
     }
 
     public List<MenuCategory> getCategoriesWithPublishedProducts() {
-        if(getMenuCategories() == null) return null;
+        if(getCategories() == null) return null;
 
-        return getMenuCategories().stream().filter(MenuCategory::hasPublishedProducts)
+        return getCategories().stream().filter(MenuCategory::hasPublishedProducts)
                 .collect(Collectors.toList());
     }
 }

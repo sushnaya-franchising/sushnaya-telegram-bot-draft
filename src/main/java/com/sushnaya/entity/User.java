@@ -2,6 +2,7 @@ package com.sushnaya.entity;
 
 import java.util.Objects;
 
+import static com.sushnaya.entity.Role.ADMIN;
 import static com.sushnaya.entity.Role.USER;
 
 public class User extends Entity {
@@ -105,6 +106,10 @@ public class User extends Entity {
 
     public Role getRole() {
         return role;
+    }
+
+    public boolean isAdmin() {
+        return role == ADMIN;
     }
 
     public void setRole(Role role) {

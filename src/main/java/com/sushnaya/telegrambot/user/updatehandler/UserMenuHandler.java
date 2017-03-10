@@ -29,17 +29,21 @@ public class UserMenuHandler extends SushnayaBotUpdateHandler {
         final Menu selectedMenu = getSelectedMenu(update);
 
         if (selectedMenu != null) {
-            user.setSelectedMenu(selectedMenu);
-            storage.saveUser(user);
+            updateSelectedMenu(user, selectedMenu);
 
-            askCategory(update, selectedMenu);
+            askCategory(update, user);
 
         } else if (user.didSelectMenu()) {
-            askCategory(update, user.getSelectedMenu());
+            askCategory(update, user);
 
         } else {
-            askMenu(update);
+            askMenu(update, user);
         }
+    }
+
+    public void updateSelectedMenu(User user, Menu selectedMenu) {
+        user.setSelectedMenu(selectedMenu);
+        bot.getDataStorage().saveUser(user);
     }
 
     private Menu getSelectedMenu(Update update) {
@@ -48,27 +52,33 @@ public class UserMenuHandler extends SushnayaBotUpdateHandler {
         return bot.getDataStorage().getMenu(menuId);
     }
 
-    private void askCategory(Update update, Menu menu) {
+    private void askCategory(Update update, User user) {
+        Menu menu = user.getSelectedMenu();
+
         if (!bot.hasPublishedProducts(menu.getId())) {
-            askMenu(update);
+            askMenu(update, user);
             return;
         }
 
         say(update, MESSAGES.userMenuDefaultMessage(menu),
-                selectCategoryKeyboard(menu.getCategoriesWithPublishedProducts()));
+                bot.getKeyboardFactory(user).menuCategoriesKeyboard(
+                        menu.getCategoriesWithPublishedProducts()));
     }
 
-    private void askMenu(Update update) {
+    private void askMenu(Update update, User user) {
         List<Menu> menus = bot.getMenusWithPublishedProducts();
 
         if (menus == null || menus.isEmpty()) {
             bot.say(update, MESSAGES.noProductsUserMessage(), true);
 
         } else if (menus.size() == 1) {
-            askCategory(update, menus.get(0));
+            updateSelectedMenu(user, menus.get(0));
+
+            askCategory(update, user);
 
         } else {
-            say(update, MESSAGES.selectMenu(), selectMenuKeyboard(menus));
+            say(update, MESSAGES.selectMenu(),
+                    bot.getKeyboardFactory(user).menusKeyboard(menus));
         }
     }
 

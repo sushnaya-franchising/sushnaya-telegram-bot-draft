@@ -13,11 +13,12 @@ public class Product extends Entity {
     private Double price;
     private String subheading;
     private String description;
-    private String imageUri;
+    private String photoUri;
     private String telegramPhotoFileId;
     private int likesCount;
     private List<Comment> comments;
     private boolean isPublished;
+    private MenuCategory category;
 
     public Product() {
     }
@@ -41,6 +42,14 @@ public class Product extends Entity {
         return telegramPhotoFileId;
     }
 
+    public boolean hasPhoto() {
+        return hasTelegramPhotoFile() || hasPhotoUri();
+    }
+
+    public boolean hasPhotoUri() {
+        return photoUri != null;
+    }
+
     public boolean hasTelegramPhotoFile() {
         return getTelegramPhotoFileId() != null;
     }
@@ -49,7 +58,7 @@ public class Product extends Entity {
         this.telegramPhotoFileId = telegramPhotoFileId;
     }
 
-    public MenuCategory getMenuCategory() {
+    public MenuCategory getCategory() {
         return menuCategory;
     }
 
@@ -89,12 +98,12 @@ public class Product extends Entity {
         this.description = description;
     }
 
-    public String getImageUri() {
-        return imageUri;
+    public String getPhotoUri() {
+        return photoUri;
     }
 
-    public void setImageUri(String imageUri) {
-        this.imageUri = imageUri;
+    public void setPhotoUri(String photoUri) {
+        this.photoUri = photoUri;
     }
 
     public int getLikesCount() {
@@ -121,8 +130,12 @@ public class Product extends Entity {
         isPublished = published;
     }
 
-    public String getDisplayName(Locale locale) {
-        StringBuilder sb = new StringBuilder().append(capitalize(getName()));
+    public String getDisplayName() {
+        return capitalize(getName());
+    }
+
+    public String getDisplayNameWithPrice(Locale locale) {
+        StringBuilder sb = new StringBuilder().append(getDisplayName());
 
         if (hasPrice()) {
             final NumberFormat currency = NumberFormat.getCurrencyInstance(locale);
@@ -154,18 +167,19 @@ public class Product extends Entity {
         Product product = (Product) o;
         return getLikesCount() == product.getLikesCount() &&
                 isPublished() == product.isPublished() &&
-                Objects.equals(getMenuCategory(), product.getMenuCategory()) &&
+                Objects.equals(getCategory(), product.getCategory()) &&
                 Objects.equals(getName(), product.getName()) &&
                 Objects.equals(getPrice(), product.getPrice()) &&
                 Objects.equals(getSubheading(), product.getSubheading()) &&
                 Objects.equals(getDescription(), product.getDescription()) &&
-                Objects.equals(getImageUri(), product.getImageUri()) &&
+                Objects.equals(getPhotoUri(), product.getPhotoUri()) &&
                 Objects.equals(getTelegramPhotoFileId(), product.getTelegramPhotoFileId()) &&
                 Objects.equals(getComments(), product.getComments());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), getMenuCategory(), getName(), getPrice(), getSubheading(), getDescription(), getImageUri(), getTelegramPhotoFileId(), getLikesCount(), getComments(), isPublished());
+        return Objects.hash(super.hashCode(), getCategory(), getName(), getPrice(), getSubheading(), getDescription(), getPhotoUri(), getTelegramPhotoFileId(), getLikesCount(), getComments(), isPublished());
     }
+
 }

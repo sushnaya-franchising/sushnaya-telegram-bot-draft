@@ -4,79 +4,37 @@ import com.sushnaya.entity.Menu;
 import com.sushnaya.telegrambot.Command;
 import com.sushnaya.telegrambot.SushnayaBot;
 import com.sushnaya.telegrambot.SushnayaBotUpdateHandler;
-import com.sushnaya.telegrambot.admin.state.AskCommandState;
 import com.sushnaya.telegrambot.admin.state.dialog.CategoryCreationDialog;
 import org.telegram.telegrambots.api.objects.Update;
-import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
 
 import java.util.List;
-import java.util.function.Function;
 
 import static com.sushnaya.telegrambot.Command.*;
 import static com.sushnaya.telegrambot.SushnayaBot.MESSAGES;
-import static com.sushnaya.telegrambot.util.KeyboardMarkupUtil.twoColumnsInlineKeyboard;
+import static com.sushnaya.telegrambot.util.KeyboardMarkupUtil.selectMenuKeyboard;
 
 public class CreateCategoryHandler extends SushnayaBotUpdateHandler {
-    private AskCommandState menuStep;
-    private CategoryCreationDialog categoryCreationDialog;
 
     public CreateCategoryHandler(SushnayaBot bot) {
         super(bot);
     }
 
-    private AskCommandState ensureMenuStep() {
-        return menuStep == null ? menuStep = (AskCommandState) new AskCommandState(bot)
-                .setDefaultMessage(MESSAGES.selectMenuForCategoryCreation())
-                .onCancel(this::cancelCategoryCreation) : menuStep;
-    }
-
-    private CategoryCreationDialog ensureCategoryCreationDialog() {
-        return categoryCreationDialog != null ? categoryCreationDialog :
-                (categoryCreationDialog = new CategoryCreationDialog(bot));
-    }
-
     @Override
     public void handle(Update update) {
-        Menu menu = getMenu(update);
+        final Menu menu = getMenu(update);
 
-        createCategory(update, menu);
-    }
-
-    private void createCategory(Update update, Menu menu) {
         if (menu == null) {
             askMenuToCreateCategoryIn(update);
-            return;
+
+        } else {
+            createCategory(update, menu);
         }
-
-        ensureCategoryCreationDialog().ask(update).then((u, category) -> {
-            bot.setAdminDefaultState(u);
-
-            menu.addCategory(category);
-            bot.getDataStorage().saveMenu(menu);
-
-            bot.say(u, MESSAGES.categoryCreationIsSuccessful(category), true);
-            bot.say(u, MESSAGES.proposeFurtherCommandsForCategoryCreation(),
-                    bot.getAdminKeyboardFactory().categoryCreationFurtherCommands(menu, category));
-        }).onCancel(this::cancelCategoryCreation);
     }
 
     private Menu getMenu(Update update) {
         final Integer menuId = Command.parseCommandUriIntPayload(update);
 
         return bot.getDataStorage().getMenu(menuId);
-    }
-
-    private void cancelCategoryCreation(Update u) {
-        bot.setAdminDefaultState(u);
-
-        final Command command = Command.parseCommand(u);
-
-        if (command == CREATE_CATEGORY) return;
-
-        String message = command == CANCEL ? MESSAGES.categoryCreationIsCancelled(HELP) :
-                MESSAGES.categoryCreationIsInterrupted(HELP);
-
-        bot.say(u, message, true);
     }
 
     private void askMenuToCreateCategoryIn(Update update) {
@@ -90,15 +48,35 @@ public class CreateCategoryHandler extends SushnayaBotUpdateHandler {
             createCategory(update, menus.get(0));
 
         } else {
-            ensureMenuStep().ask(update, selectMenuToCreateCategoryKeyboard(menus));
+            bot.answer(update, MESSAGES.selectMenuForCategoryCreation(),
+                    selectMenuKeyboard(menus, m -> buildCommandUri(CREATE_CATEGORY, m.getId())));
         }
     }
 
-    private InlineKeyboardMarkup selectMenuToCreateCategoryKeyboard(List<Menu> menus) {
-        final Function<Menu, String> buttonTextProvider = Menu::getLocalityName;
-        final Function<Menu, String> callbackDataProvider =
-                m -> buildCommandUri(CREATE_CATEGORY, m.getId());
+    private void createCategory(Update update, Menu menu) {
+        // todo: refactor design to avoid new instance creation
+        new CategoryCreationDialog(bot).ask(update).then((u, category) -> {
+            bot.setAdminDefaultState(u);
 
-        return twoColumnsInlineKeyboard(menus, buttonTextProvider, callbackDataProvider);
+            menu.addCategory(category);
+            bot.getDataStorage().saveMenu(menu);
+
+            bot.say(u, MESSAGES.categoryCreationIsSuccessful(category), true);
+            bot.say(u, MESSAGES.proposeFurtherCommandsForCategoryCreation(),
+                    bot.getAdminKeyboardFactory().categoryCreationFurtherCommands(menu, category));
+        }).onCancel(this::cancelCategoryCreation);
+    }
+
+    private void cancelCategoryCreation(Update u) {
+        bot.setAdminDefaultState(u);
+
+        final Command command = Command.parseCommand(u);
+
+        if (command == CREATE_CATEGORY) return;
+
+        String message = command == CANCEL ? MESSAGES.categoryCreationIsCancelled(HELP) :
+                MESSAGES.categoryCreationIsInterrupted(HELP);
+
+        bot.say(u, message, true);
     }
 }

@@ -4,7 +4,6 @@ import com.google.common.collect.Maps;
 import org.telegram.telegrambots.api.objects.Update;
 
 import java.util.Map;
-import java.util.function.Function;
 
 import static com.sushnaya.telegrambot.Command.HELP;
 import static com.sushnaya.telegrambot.SushnayaBot.MESSAGES;
@@ -21,6 +20,7 @@ public class BotState implements UpdateHandler {
             @Override
             public void handle(Update update) {
                 bot.say(update, MESSAGES.userUnknownCommand(HELP));
+                // todo: tell about crash if it happened
             }
         };
     }

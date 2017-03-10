@@ -8,7 +8,6 @@ import java.util.function.Function;
 import static org.apache.commons.codec.binary.Base64.decodeBase64;
 import static org.apache.commons.codec.binary.Base64.encodeBase64String;
 
-// todo: refactor command design (do not use enum)
 public enum Command {
     NOP("/nop"),
     SEND_CONTACT("/sendcontact"),
@@ -24,23 +23,22 @@ public enum Command {
     SETTINGS("/settings"),
     STATISTICS("/stat"),
     NOTIFY("/notify"),
-    PROMOTIONS("/promotions"),
+    PROMOTION("/promotion"),
     CREATE_MENU("/newmenu"),
     EDIT_MENU("/editmenu"),
     EDIT_LOCALITY("/editlocality"),
     DELETE_MENU("/deletemenu"),
     CATEGORY("/category"),
-    EDIT_CATEGORY("/editcategories"),
     CREATE_CATEGORY("/newcategory"),
+    EDIT_CATEGORY("/editcategory"),
     DELETE_CATEGORY("/deletecategory"),
-    PRODUCTS("/products"),
     NEXT_PRODUCT_IN_CATEGORY("/nextproductincategory"),
-    EDIT_PRODUCTS("/editproducts"),
+    CREATE_PRODUCT("/newproduct"),
+    EDIT_PRODUCT("/editproduct"),
+    DELETE_PRODUCT("/delproduct"),
     SET_PRODUCT_SUBHEADING("/setproductsubheading"),
     SET_PRODUCT_DESCRIPTION("/setproductdescription"),
-    PUBLISH_PRODUCT("/publishproduct"),
-    CREATE_PRODUCT("/newproduct"),
-    CREATE_PRODUCT_IN_CATEGORY("/newproductincategory");
+    PUBLISH_PRODUCT("/publishproduct");
 
     private Function<String, String> textSupplier;
     private String uri;
@@ -87,6 +85,14 @@ public enum Command {
 
     public static String buildCommandUri(Command command, int payload) {
         return buildCommandUri(command, ByteBuffer.allocate(4).putInt(payload));
+    }
+
+    public static String buildCommandUri(Command command, byte arg1, int arg2) {
+        return buildCommandUri(command, ByteBuffer.allocate(5).put(arg1).putInt(arg2));
+    }
+
+    public static String buildCommandUri(Command command, int arg1, int arg2) {
+        return buildCommandUri(command, ByteBuffer.allocate(8).putInt(arg1).putInt(arg2));
     }
 
     public static String buildCommandUri(Command command, ByteBuffer payload) {

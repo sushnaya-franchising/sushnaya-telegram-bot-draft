@@ -1,5 +1,6 @@
 package com.sushnaya.telegrambot.admin.keyboard;
 
+import com.sushnaya.telegrambot.SushnayaBot;
 import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
