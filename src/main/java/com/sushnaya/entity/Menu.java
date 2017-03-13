@@ -60,7 +60,7 @@ public class Menu extends Entity {
         return locality;
     }
 
-    public String getLocalityName() {
+    public String getDisplayName() {
         return getLocality().getName();
     }
 

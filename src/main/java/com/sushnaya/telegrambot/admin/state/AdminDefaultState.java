@@ -24,5 +24,11 @@ public class AdminDefaultState extends BotState {
         registerUpdateHandler(EDIT_MENU, new EditMenuHandler(bot));
         registerUpdateHandler(EDIT_CATEGORY, new EditCategoryHandler(bot));
         registerUpdateHandler(EDIT_PRODUCT, new EditProductHandler(bot));
+        registerUpdateHandler(DELETE_MENU, new DeleteMenuHandler(bot));
+        registerUpdateHandler(DELETE_CATEGORY, new DeleteCategoryHandler(bot));
+        registerUpdateHandler(DELETE_PRODUCT, new DeleteProductHandler(bot));
+        registerUpdateHandler(RESTORE_MENU, new RestoreMenuHandler(bot));
+        registerUpdateHandler(RESTORE_CATEGORY, new RestoreCategoryHandler(bot));
+        registerUpdateHandler(RESTORE_PRODUCT, new RestoreProductHandler(bot));
     }
 }

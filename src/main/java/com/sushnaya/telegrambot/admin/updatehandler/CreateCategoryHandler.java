@@ -41,7 +41,7 @@ public class CreateCategoryHandler extends SushnayaBotUpdateHandler {
         final List<Menu> menus = bot.getDataStorage().getMenus();
 
         if (menus == null || menus.isEmpty()) {
-            bot.say(update, MESSAGES.categoryCreationInquireMenuCreation(CREATE_MENU),
+            bot.say(update, MESSAGES.categoryCreationInquireMenuCreation(),
                     true);
 
         } else if (menus.size() == 1) {
@@ -74,8 +74,8 @@ public class CreateCategoryHandler extends SushnayaBotUpdateHandler {
 
         if (command == CREATE_CATEGORY) return;
 
-        String message = command == CANCEL ? MESSAGES.categoryCreationIsCancelled(HELP) :
-                MESSAGES.categoryCreationIsInterrupted(HELP);
+        String message = command == CANCEL ? MESSAGES.categoryCreationIsCancelled() :
+                MESSAGES.categoryCreationIsInterrupted();
 
         bot.say(u, message, true);
     }

@@ -34,7 +34,7 @@ public class CreateMenuHandler extends SushnayaBotUpdateHandler {
 
         if (command == CREATE_MENU) return;
 
-        String message = command == CANCEL ? MESSAGES.menuCreationIsCancelled(HELP) :
+        String message = command == CANCEL ? MESSAGES.menuCreationIsCancelled() :
                 MESSAGES.menuCreationIsInterrupted(HELP);
 
         bot.say(u, message, true);

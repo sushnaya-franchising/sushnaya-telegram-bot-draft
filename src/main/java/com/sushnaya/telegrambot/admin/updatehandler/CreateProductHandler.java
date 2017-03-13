@@ -62,7 +62,7 @@ public class CreateProductHandler extends SushnayaBotUpdateHandler {
         final List<Menu> menus = bot.getDataStorage().getMenus();
 
         if (menus == null || menus.isEmpty()) {
-            bot.say(update, MESSAGES.productCreationInquireMenuCreation(CREATE_MENU),
+            bot.say(update, MESSAGES.productCreationInquireMenuCreation(),
                     true);
 
         } else if (menus.size() == 1) {
@@ -79,7 +79,7 @@ public class CreateProductHandler extends SushnayaBotUpdateHandler {
         final List<MenuCategory> categories = menu.getCategories();
 
         if (categories == null || categories.isEmpty()) {
-            bot.say(update, MESSAGES.productCreationInquireCategoryCreation(CREATE_CATEGORY),
+            bot.say(update, MESSAGES.productCreationInquireCategoryCreation(),
                     true);
 
         } else if (categories.size() == 1) {
@@ -114,8 +114,8 @@ public class CreateProductHandler extends SushnayaBotUpdateHandler {
 
         if (command == CREATE_PRODUCT) return;
 
-        String message = command == CANCEL ? MESSAGES.productCreationIsCancelled(HELP) :
-                MESSAGES.productCreationIsInterrupted(HELP);
+        String message = command == CANCEL ? MESSAGES.productCreationIsCancelled() :
+                MESSAGES.productCreationIsInterrupted();
 
         bot.say(u, message, true);
     }

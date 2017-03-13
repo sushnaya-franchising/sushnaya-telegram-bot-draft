@@ -3,6 +3,7 @@ package com.sushnaya.telegrambot.admin.updatehandler;
 import com.sushnaya.telegrambot.SushnayaBot;
 import com.sushnaya.telegrambot.SushnayaBotUpdateHandler;
 import org.telegram.telegrambots.api.objects.Update;
+import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
 
 import static com.sushnaya.telegrambot.SushnayaBot.MESSAGES;
 
@@ -13,18 +14,15 @@ public class DashboardHandler extends SushnayaBotUpdateHandler {
 
     @Override
     public void handle(Update update) {
-        String message = getDashboardMessageText(bot);
+        bot.answer(update, getDashboardMessageText(), getDashboardKeyboard());
+    }
 
-        if (update.hasCallbackQuery()) {
-            bot.edit(update, message, bot.getAdminKeyboardFactory().dashboardMarkup());
-
-        } else {
-            bot.say(update, message, bot.getAdminKeyboardFactory().dashboardMarkup());
-        }
+    protected InlineKeyboardMarkup getDashboardKeyboard() {
+        return bot.getAdminKeyboardFactory().dashboardMarkup();
     }
 
 
-    private String getDashboardMessageText(SushnayaBot bot) {
+    protected String getDashboardMessageText() {
         if (!bot.hasProducts()) {
             return MESSAGES.dashboardNoProductsMessage();
         }

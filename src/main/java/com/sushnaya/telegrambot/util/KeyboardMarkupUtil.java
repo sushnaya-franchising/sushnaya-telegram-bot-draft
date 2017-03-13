@@ -12,7 +12,6 @@ import org.telegram.telegrambots.api.objects.replykeyboard.buttons.InlineKeyboar
 import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardRow;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
@@ -117,7 +116,7 @@ public class KeyboardMarkupUtil {
 
     public static InlineKeyboardMarkup selectMenuKeyboard(
             List<Menu> menus, Function<Menu, String> callbackDataProvider) {
-        final Function<Menu, String> buttonTextProvider = Menu::getLocalityName;
+        final Function<Menu, String> buttonTextProvider = Menu::getDisplayName;
 
         return twoColumnsInlineKeyboard(menus, buttonTextProvider, callbackDataProvider);
     }

@@ -5,7 +5,6 @@ import com.sushnaya.entity.Menu;
 import com.sushnaya.entity.MenuCategory;
 import com.sushnaya.entity.Product;
 import com.sushnaya.telegrambot.KeyboardFactoryProvider;
-import com.sushnaya.telegrambot.SushnayaBot;
 import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardMarkup;

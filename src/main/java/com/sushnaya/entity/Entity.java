@@ -1,6 +1,5 @@
 package com.sushnaya.entity;
 
-import java.nio.ByteBuffer;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -26,6 +25,7 @@ public abstract class Entity {
         return Integer.toHexString(getId());
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Entity)) return false;
@@ -33,7 +33,9 @@ public abstract class Entity {
         return getId() == entity.getId();
     }
 
+    @Override
     public int hashCode() {
         return Objects.hash(getId());
     }
 }
+

@@ -34,7 +34,7 @@ public class CategoryCreationDialog extends AdminBotDialogState<MenuCategory> {
 
                 photoStep = (AskPhotoState) new AskPhotoState(bot)
                         .setDefaultMessage(MESSAGES.askCategoryPhoto())
-                        .setHelpMessage(MESSAGES.skipCategoryPhotoStepHelp(SKIP) + "\n\n" +
+                        .setHelpMessage(MESSAGES.skipCategoryPhotoStepHelp() + "\n\n" +
                                 MESSAGES.cancelMenuCreationHelp(CANCEL))
                         .setDefaultKeyboard(bot.getAdminKeyboardFactory().skipCategoryPhotoStepMarkup())
                         .setSkippable(true),
@@ -42,7 +42,7 @@ public class CategoryCreationDialog extends AdminBotDialogState<MenuCategory> {
                 subheadingStep = (AskTextState) new AskTextState(bot)
                         .setDefaultMessage(MESSAGES.askCategorySubheading())
                         .setHelpMessage((MESSAGES.askCategorySubheadingStepHelp() + "\n\n" +
-                                MESSAGES.skipCategorySubheadingStepHelp(SKIP) + "\n\n" +
+                                MESSAGES.skipCategorySubheadingStepHelp() + "\n\n" +
                                 MESSAGES.cancelMenuCreationHelp(CANCEL)))
                         .setDefaultKeyboard(bot.getAdminKeyboardFactory().skipCategorySubheadingStepMarkup())
                         .setSkippable(true)

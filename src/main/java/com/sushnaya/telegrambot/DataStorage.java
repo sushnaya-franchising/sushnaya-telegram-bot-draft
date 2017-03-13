@@ -16,15 +16,23 @@ import static com.sushnaya.entity.Role.ADMIN;
 public class DataStorage {
     private volatile static DataStorage INSTANCE;
 
-    private static final Map<Integer, User> ADMINS_BY_ID = Maps.newHashMap();
+    private static final Map<Integer, User> ADMINS_BY_TELEGRAM_ID = Maps.newHashMap();
     private static final Map<Integer, User> USERS_BY_TELEGRAM_ID = Maps.newHashMap();
-    private static final Map<Integer, Menu> MENUS_BY_ID = Maps.newHashMap();
-    private static final Map<Integer, MenuCategory> MENU_CATEGORIES_BY_ID = Maps.newHashMap();
-    private static final Map<Integer, List<MenuCategory>> MENU_CATEGORIES_BY_MENU_ID = Maps.newHashMap();
-    private static final Map<Integer, Product> PRODUCTS_BY_ID = Maps.newHashMap();
+
     private static final Map<Integer, Locality> LOCALITIES_BY_ID = Maps.newHashMap();
     private static final Map<Integer, DeliveryZone> DELIVERY_ZONES_BY_ID = Maps.newHashMap();
+
+    private static final Map<Integer, Menu> MENUS_BY_ID = Maps.newHashMap();
+    private static final Map<Integer, MenuCategory> CATEGORIES_BY_ID = Maps.newHashMap();
+    private static final Map<Integer, List<MenuCategory>> CATEGORIES_BY_MENU_ID = Maps.newHashMap();
+    private static final Map<Integer, Product> PRODUCTS_BY_ID = Maps.newHashMap();
     private static final Set<Coordinate> BOUND_LOCALITIES = Sets.newHashSet();
+
+    private static final Map<Integer, Menu> DELETED_MENUS_BY_ID = Maps.newHashMap();
+    private static final Map<Integer, MenuCategory> DELETED_CATEGORIES_BY_ID = Maps.newHashMap();
+    private static final Map<Integer, Product> DELETED_PRODUCTS_BY_ID = Maps.newHashMap();
+
+    // todo: deleted item tables
 
     public static DataStorage get() {
         if (INSTANCE == null) {
@@ -75,8 +83,8 @@ public class DataStorage {
         peterMenu.addCategory(rolls);
         peterMenu.addCategory(sets);
 
-//        saveMenu(moscowMenu);
-//        saveMenu(peterMenu);
+        saveMenu(moscowMenu);
+        saveMenu(peterMenu);
     }
 
     public User getUserByTelegramId(Integer telegramId) {
@@ -86,11 +94,11 @@ public class DataStorage {
     }
 
     public User getAdmin(int userId) {
-        return ADMINS_BY_ID.get(userId);
+        return ADMINS_BY_TELEGRAM_ID.get(userId);
     }
 
     public Collection<User> getAdmins() {
-        return Collections.unmodifiableCollection(ADMINS_BY_ID.values());
+        return Collections.unmodifiableCollection(ADMINS_BY_TELEGRAM_ID.values());
     }
 
     public void saveUser(@NotNull User user) {
@@ -112,7 +120,7 @@ public class DataStorage {
     private void saveAdmin(@NotNull User admin) {
         if (admin == null) return;
 
-        ADMINS_BY_ID.put(admin.getTelegramId(), admin);
+        ADMINS_BY_TELEGRAM_ID.put(admin.getTelegramId(), admin);
     }
 
     public int getMenusCount() {
@@ -140,7 +148,7 @@ public class DataStorage {
     }
 
     public Collection<MenuCategory> getMenuCategories(int menuId) {
-        return MENU_CATEGORIES_BY_ID.values().stream().filter(c ->
+        return CATEGORIES_BY_ID.values().stream().filter(c ->
                 c.getMenu().getId() == menuId).collect(Collectors.toList());
     }
 
@@ -163,17 +171,17 @@ public class DataStorage {
         // if selectCategoryKeyboard is already bound to locality
         saveLocality(menu.getLocality());
         menu.getCategories().forEach(this::saveCategory);
-        MENU_CATEGORIES_BY_MENU_ID.put(menu.getId(), menu.getCategories());
+        CATEGORIES_BY_MENU_ID.put(menu.getId(), menu.getCategories());
     }
 
     public void saveCategory(MenuCategory category) {
-        MENU_CATEGORIES_BY_ID.put(category.getId(), category);
+        CATEGORIES_BY_ID.put(category.getId(), category);
 
         if (category.hasProducts()) category.getProducts().forEach(this::saveProduct);
     }
 
     public MenuCategory getMenuCategory(int id) {
-        return MENU_CATEGORIES_BY_ID.get(id);
+        return CATEGORIES_BY_ID.get(id);
     }
 
     public void saveProduct(Product product) {
@@ -272,5 +280,45 @@ public class DataStorage {
 
     public Product getProduct(int productId) {
         return PRODUCTS_BY_ID.get(productId);
+    }
+
+    public void deleteMenu(Menu menu) {
+        menu.getCategories().forEach(c -> {
+            c.getProducts().forEach(p -> {
+                PRODUCTS_BY_ID.remove(p.getId());
+                DELETED_PRODUCTS_BY_ID.put(p.getId(), p);
+            });
+
+            CATEGORIES_BY_ID.remove(c.getId());
+            CATEGORIES_BY_MENU_ID.remove(menu.getId());
+            DELETED_CATEGORIES_BY_ID.put(c.getId(), c);
+        });
+
+        MENUS_BY_ID.remove(menu.getId());
+        DELETED_MENUS_BY_ID.put(menu.getId(), menu);
+        BOUND_LOCALITIES.remove(menu.getLocality().getCoordinate());
+
+        USERS_BY_TELEGRAM_ID.entrySet().forEach(e -> e.getValue().setSelectedMenu(null));
+    }
+
+    public void recoverMenu(int menuId) {
+        Menu menu = DELETED_MENUS_BY_ID.get(menuId);
+
+        if (menu == null) throw new IndexOutOfBoundsException();// todo: handle gently
+
+        menu.getCategories().forEach(c -> {
+            c.getProducts().forEach(p -> {
+                DELETED_MENUS_BY_ID.remove(p.getId());
+                PRODUCTS_BY_ID.put(p.getId(), p);
+            });
+
+            DELETED_CATEGORIES_BY_ID.remove(c.getId());
+            CATEGORIES_BY_ID.put(c.getId(), c);
+            CATEGORIES_BY_MENU_ID.put(menu.getId(), menu.getCategories());
+        });
+
+        DELETED_MENUS_BY_ID.remove(menu.getId());
+        MENUS_BY_ID.put(menu.getId(), menu);
+        BOUND_LOCALITIES.add(menu.getLocality().getCoordinate());
     }
 }

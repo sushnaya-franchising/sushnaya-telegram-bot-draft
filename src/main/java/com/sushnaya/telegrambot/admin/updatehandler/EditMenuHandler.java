@@ -40,7 +40,7 @@ public class EditMenuHandler extends SushnayaBotUpdateHandler {
         final List<Menu> menus = bot.getDataStorage().getMenus();
 
         if (menus == null || menus.isEmpty()) {
-            bot.say(update, MESSAGES.noMenuWasCreatedToEdit(CREATE_MENU),
+            bot.say(update, MESSAGES.noMenuWasCreatedToEdit(),
                     true);
 
         } else if (menus.size() == 1) {

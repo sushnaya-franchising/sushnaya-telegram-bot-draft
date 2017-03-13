@@ -15,6 +15,6 @@ public class UserHelpHandler extends SushnayaBotUpdateHandler {
     @Override
     public void handle(Update update) {
         // todo: add change city command if more than 1 menu
-        bot.say(update, MESSAGES.userHelp(MENU, HELP, CANCEL), true);
+        bot.say(update, MESSAGES.userHelp(), true);
     }
 }

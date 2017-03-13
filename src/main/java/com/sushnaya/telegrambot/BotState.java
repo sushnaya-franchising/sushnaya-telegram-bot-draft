@@ -19,7 +19,7 @@ public class BotState implements UpdateHandler {
         unknownUpdateHandler = new SushnayaBotUpdateHandler(bot) {
             @Override
             public void handle(Update update) {
-                bot.say(update, MESSAGES.userUnknownCommand(HELP));
+                bot.say(update, MESSAGES.userUnknownCommand());
                 // todo: tell about crash if it happened
             }
         };

@@ -1,8 +1,11 @@
 package com.sushnaya.telegrambot.admin.state;
 
+import com.sushnaya.telegrambot.BotState;
 import com.sushnaya.telegrambot.Command;
 import com.sushnaya.telegrambot.SushnayaBot;
 import com.sushnaya.telegrambot.UpdateHandler;
+import com.sushnaya.telegrambot.admin.updatehandler.*;
+import com.sushnaya.telegrambot.user.updatehandler.UserNextProductInCategoryHandler;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboard;
 
@@ -14,7 +17,7 @@ import static com.sushnaya.telegrambot.Command.*;
 import static com.sushnaya.telegrambot.SushnayaBot.MESSAGES;
 import static com.sushnaya.telegrambot.util.KeyboardMarkupUtil.REPLY_KEYBOARD_REMOVE;
 
-public abstract class AdminBotDialogState<R> extends AdminDefaultState {
+public abstract class AdminBotDialogState<R> extends BotState {
     public static final Function<Update, Command> SKIP_COMMAND_PARSER = u -> {
         if (u.hasMessage() && u.getMessage().hasText()) {
             final String text = u.getMessage().getText();
@@ -39,21 +42,23 @@ public abstract class AdminBotDialogState<R> extends AdminDefaultState {
     public AdminBotDialogState(SushnayaBot bot) {
         super(bot);
 
-        registerUpdateHandler(START, cancelBefore(getUpdateHandler(START)));
-        registerUpdateHandler(MENU, cancelBefore(getUpdateHandler(MENU)));
-        registerUpdateHandler(NEXT_PRODUCT_IN_CATEGORY, cancelBefore(getUpdateHandler(NEXT_PRODUCT_IN_CATEGORY)));
-        registerUpdateHandler(ADMIN_DASHBOARD, cancelBefore(getUpdateHandler(ADMIN_DASHBOARD)));
-        registerUpdateHandler(CREATE_MENU, cancelBefore(getUpdateHandler(CREATE_MENU)));
-        registerUpdateHandler(CREATE_CATEGORY, cancelBefore(getUpdateHandler(CREATE_CATEGORY)));
-        registerUpdateHandler(CREATE_PRODUCT, cancelBefore(getUpdateHandler(CREATE_PRODUCT)));
-        registerUpdateHandler(EDIT_MENU, cancelBefore(getUpdateHandler(EDIT_MENU)));
-        registerUpdateHandler(EDIT_CATEGORY, cancelBefore(getUpdateHandler(EDIT_CATEGORY)));
-        registerUpdateHandler(EDIT_PRODUCT, cancelBefore(getUpdateHandler(EDIT_PRODUCT)));
+        registerUpdateHandler(START, cancelBefore(new AdminStartHandler(bot)));
+        registerUpdateHandler(MENU, cancelBefore(new AdminMenuHandler(bot)));
+        registerUpdateHandler(NEXT_PRODUCT_IN_CATEGORY, cancelBefore(new UserNextProductInCategoryHandler(bot)));
+        registerUpdateHandler(ADMIN_DASHBOARD, cancelBefore(new DashboardHandler(bot)));
+        registerUpdateHandler(CREATE_MENU, cancelBefore(new CreateMenuHandler(bot)));
+        registerUpdateHandler(CREATE_CATEGORY, cancelBefore(new CreateCategoryHandler(bot)));
+        registerUpdateHandler(CREATE_PRODUCT, cancelBefore(new CreateProductHandler(bot)));
+        registerUpdateHandler(EDIT_MENU, cancelBefore(new EditMenuHandler(bot)));
+        registerUpdateHandler(EDIT_CATEGORY, cancelBefore(new EditCategoryHandler(bot)));
+        registerUpdateHandler(EDIT_PRODUCT, cancelBefore(new EditProductHandler(bot)));
+        registerUpdateHandler(DELETE_MENU, cancelBefore(new DeleteMenuHandler(bot)));
+        registerUpdateHandler(DELETE_CATEGORY, cancelBefore(new DeleteCategoryHandler(bot)));
+        registerUpdateHandler(DELETE_PRODUCT, cancelBefore(new DeleteProductHandler(bot)));
         registerUpdateHandler(CANCEL, this::cancel);
         registerUpdateHandler(SKIP, this::skip);
-        // todo: wrap all global commands to cancel
 
-        final UpdateHandler originalHelpHandler = getUpdateHandler(HELP);
+        final UpdateHandler originalHelpHandler = new AdminHelpHandler(bot);
         registerUpdateHandler(HELP, u -> {
             if (helpMessage != null) {
                 bot.say(u, helpMessage);
