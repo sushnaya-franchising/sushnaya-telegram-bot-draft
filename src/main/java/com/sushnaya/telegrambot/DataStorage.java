@@ -24,7 +24,6 @@ public class DataStorage {
 
     private static final Map<Integer, Menu> MENUS_BY_ID = Maps.newHashMap();
     private static final Map<Integer, MenuCategory> CATEGORIES_BY_ID = Maps.newHashMap();
-    private static final Map<Integer, List<MenuCategory>> CATEGORIES_BY_MENU_ID = Maps.newHashMap();
     private static final Map<Integer, Product> PRODUCTS_BY_ID = Maps.newHashMap();
     private static final Set<Coordinate> BOUND_LOCALITIES = Sets.newHashSet();
 
@@ -171,7 +170,6 @@ public class DataStorage {
         // if selectCategoryKeyboard is already bound to locality
         saveLocality(menu.getLocality());
         menu.getCategories().forEach(this::saveCategory);
-        CATEGORIES_BY_MENU_ID.put(menu.getId(), menu.getCategories());
     }
 
     public void saveCategory(MenuCategory category) {
@@ -188,9 +186,7 @@ public class DataStorage {
         PRODUCTS_BY_ID.put(product.getId(), product);
     }
 
-    public Menu getMenu(Integer id) {
-        if (id == null) return null;
-
+    public Menu getMenu(int id) {
         return MENUS_BY_ID.get(id);
     }
 
@@ -283,16 +279,7 @@ public class DataStorage {
     }
 
     public void deleteMenu(Menu menu) {
-        menu.getCategories().forEach(c -> {
-            c.getProducts().forEach(p -> {
-                PRODUCTS_BY_ID.remove(p.getId());
-                DELETED_PRODUCTS_BY_ID.put(p.getId(), p);
-            });
-
-            CATEGORIES_BY_ID.remove(c.getId());
-            CATEGORIES_BY_MENU_ID.remove(menu.getId());
-            DELETED_CATEGORIES_BY_ID.put(c.getId(), c);
-        });
+        menu.getCategories().forEach(this::deleteCategory);
 
         MENUS_BY_ID.remove(menu.getId());
         DELETED_MENUS_BY_ID.put(menu.getId(), menu);
@@ -301,24 +288,71 @@ public class DataStorage {
         USERS_BY_TELEGRAM_ID.entrySet().forEach(e -> e.getValue().setSelectedMenu(null));
     }
 
-    public void recoverMenu(int menuId) {
-        Menu menu = DELETED_MENUS_BY_ID.get(menuId);
+    public Menu recoverMenu(int menuId) {
+        final Menu menu = DELETED_MENUS_BY_ID.get(menuId);
 
         if (menu == null) throw new IndexOutOfBoundsException();// todo: handle gently
 
-        menu.getCategories().forEach(c -> {
-            c.getProducts().forEach(p -> {
-                DELETED_MENUS_BY_ID.remove(p.getId());
-                PRODUCTS_BY_ID.put(p.getId(), p);
-            });
+        recoverMenu(menu);
 
-            DELETED_CATEGORIES_BY_ID.remove(c.getId());
-            CATEGORIES_BY_ID.put(c.getId(), c);
-            CATEGORIES_BY_MENU_ID.put(menu.getId(), menu.getCategories());
-        });
+        return menu;
+    }
+
+    private void recoverMenu(Menu menu) {
+        menu.getCategories().forEach(this::recoverCategory);
 
         DELETED_MENUS_BY_ID.remove(menu.getId());
         MENUS_BY_ID.put(menu.getId(), menu);
         BOUND_LOCALITIES.add(menu.getLocality().getCoordinate());
+    }
+
+    public void deleteCategory(MenuCategory category) {
+        category.getProducts().forEach(this::deleteProduct);
+
+        CATEGORIES_BY_ID.remove(category.getId());
+        DELETED_CATEGORIES_BY_ID.put(category.getId(), category);
+    }
+
+    public MenuCategory recoverCategory(int categoryId) {
+        MenuCategory category = DELETED_CATEGORIES_BY_ID.get(categoryId);
+
+        if (category != null) recoverCategory(category);
+
+        return category;
+    }
+
+    private void recoverCategory(MenuCategory category) {
+        if (category == null) return;
+
+        final Menu menu = category.getMenu();
+
+        category.getProducts().forEach(this::recoverProduct);
+
+        DELETED_CATEGORIES_BY_ID.remove(category.getId());
+        CATEGORIES_BY_ID.put(category.getId(), category);
+
+        menu.addCategory(category);
+    }
+
+    public void deleteProduct(Product product) {
+        PRODUCTS_BY_ID.remove(product.getId());
+        DELETED_PRODUCTS_BY_ID.put(product.getId(), product);
+    }
+
+    public Product recoverProduct(int productId) {
+        Product product = DELETED_PRODUCTS_BY_ID.get(productId);
+
+        if(product != null) recoverProduct(product);
+
+        return product;
+    }
+
+    private void recoverProduct(Product product) {
+        if(product == null) return;
+
+        DELETED_PRODUCTS_BY_ID.remove(product.getId());
+        PRODUCTS_BY_ID.put(product.getId(), product);
+
+        product.getCategory().addProduct(product);
     }
 }

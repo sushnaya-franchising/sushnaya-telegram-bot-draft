@@ -5,7 +5,7 @@ import com.sushnaya.telegrambot.SushnayaBot;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
 
-import static com.sushnaya.telegrambot.Command.RESTORE_MENU;
+import static com.sushnaya.telegrambot.Command.RECOVER_MENU;
 import static com.sushnaya.telegrambot.Command.buildCommandUri;
 import static com.sushnaya.telegrambot.Command.parseCommandUriIntPayload;
 import static com.sushnaya.telegrambot.SushnayaBot.MESSAGES;
@@ -32,7 +32,7 @@ public class DeleteMenuHandler extends DashboardHandler {
     private Menu getMenu(Update update) {
         Integer menuId = parseCommandUriIntPayload(update);
 
-        return bot.getDataStorage().getMenu(menuId);
+        return menuId == null ? null: bot.getDataStorage().getMenu(menuId);
     }
 
     private void deleteMenu(Menu menu) {
@@ -43,7 +43,7 @@ public class DeleteMenuHandler extends DashboardHandler {
         final String message = format("%s\n\n%s", getDashboardMessageText(),
                 MESSAGES.menuWasDeleted(menu));
         final InlineKeyboardMarkup keyboard = addFirstButton(getDashboardKeyboard(),
-                MESSAGES.recoverMenu(), buildCommandUri(RESTORE_MENU, menu.getId()));
+                MESSAGES.recoverMenu(menu), buildCommandUri(RECOVER_MENU, menu.getId()));
 
         bot.answer(update, message, keyboard);
     }

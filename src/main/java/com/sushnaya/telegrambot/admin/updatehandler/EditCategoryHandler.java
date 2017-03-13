@@ -6,6 +6,7 @@ import com.sushnaya.telegrambot.Command;
 import com.sushnaya.telegrambot.SushnayaBot;
 import com.sushnaya.telegrambot.SushnayaBotUpdateHandler;
 import org.telegram.telegrambots.api.objects.Update;
+import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
 
 import java.nio.ByteBuffer;
 import java.util.List;
@@ -93,7 +94,14 @@ public class EditCategoryHandler extends SushnayaBotUpdateHandler {
     }
 
     private void editCategory(Update update, MenuCategory category) {
-        bot.answer(update, MESSAGES.categorySettings(category),
-                bot.getAdminKeyboardFactory().editCategory(category));
+        bot.answer(update, getEditCategoryMessageText(category), getEditCategoryKeyboard(category));
+    }
+
+    protected String getEditCategoryMessageText(MenuCategory category) {
+        return MESSAGES.categorySettings(category);
+    }
+
+    protected InlineKeyboardMarkup getEditCategoryKeyboard(MenuCategory category) {
+        return bot.getAdminKeyboardFactory().editCategory(category);
     }
 }

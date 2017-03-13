@@ -8,8 +8,8 @@ import static com.sushnaya.telegrambot.Command.parseCommandUriIntPayload;
 import static com.sushnaya.telegrambot.SushnayaBot.MESSAGES;
 import static java.lang.String.format;
 
-public class RestoreMenuHandler extends DashboardHandler {
-    public RestoreMenuHandler(SushnayaBot bot) {
+public class RecoverMenuHandler extends DashboardHandler {
+    public RecoverMenuHandler(SushnayaBot bot) {
         super(bot);
     }
 
@@ -18,19 +18,19 @@ public class RestoreMenuHandler extends DashboardHandler {
         final Integer menuId = parseCommandUriIntPayload(update);
 
         if (menuId != null) {
-            recoverMenu(menuId);
+            final Menu menu = recoverMenu(menuId);
 
-            answer(update, bot.getDataStorage().getMenu(menuId));
+            answer(update, menu);
         }
     }
 
-    private void recoverMenu(int menuId) {
-        bot.getDataStorage().recoverMenu(menuId);
+    private Menu recoverMenu(int menuId) {
+        return bot.getDataStorage().recoverMenu(menuId);
     }
 
     private void answer(Update update, Menu menu) {
         final String message = format("%s\n\n%s", getDashboardMessageText(),
-                MESSAGES.menuWasRecovered(menu));
+                menu == null ? MESSAGES.menuRecoveryFailed() : MESSAGES.menuWasRecovered(menu));
 
         bot.answer(update, message, getDashboardKeyboard());
     }

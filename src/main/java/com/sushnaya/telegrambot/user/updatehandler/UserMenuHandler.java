@@ -49,7 +49,7 @@ public class UserMenuHandler extends SushnayaBotUpdateHandler {
     private Menu getSelectedMenu(Update update) {
         final Integer menuId = parseCommandUriIntPayload(update);
 
-        return bot.getDataStorage().getMenu(menuId);
+        return menuId == null ? null : bot.getDataStorage().getMenu(menuId);
     }
 
     private void askCategory(Update update, User user) {

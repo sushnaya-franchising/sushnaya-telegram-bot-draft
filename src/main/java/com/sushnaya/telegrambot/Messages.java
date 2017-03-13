@@ -589,11 +589,47 @@ public class Messages {
         return format("menu_was_deleted", menu.getDisplayName());
     }
 
-    public String recoverMenu() {
-        return messages.getString("recover_menu");
+    public String recoverMenu(Menu menu) {
+        return format("recover_menu", menu.getDisplayName());
     }
 
     public String menuWasRecovered(Menu menu) {
         return format("menu_was_recovered", menu.getDisplayName());
+    }
+
+    public String categoryWasDeleted(MenuCategory category) {
+        return format("category_was_deleted", category.getDisplayName());
+    }
+
+    public String recoverCategory(MenuCategory category) {
+        return format("recover_category", category.getDisplayName());
+    }
+
+    public String categoryWasRecovered(MenuCategory category) {
+        return format("category_was_recovered", category.getDisplayName());
+    }
+
+    public String productWasDeleted(Product product) {
+        return format("product_was_deleted", product.getDisplayName());
+    }
+
+    public String menuRecoveryFailed() {
+        return messages.getString("menu_recovery_failed");
+    }
+
+    public String categoryRecoveryFailed() {
+        return messages.getString("category_recovery_failed");
+    }
+
+    public String productRecoveryFailed() {
+        return messages.getString("product_recovery_failed");
+    }
+
+    public String productWasRecovered(Product product) {
+        return format("product_was_recovered", product.getDisplayName());
+    }
+
+    public String recoverProduct(Product product) {
+        return format("recover_product", product.getDisplayName());
     }
 }

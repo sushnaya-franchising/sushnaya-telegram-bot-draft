@@ -43,7 +43,8 @@ public class MenuCategory extends Entity {
         if (products == null) products = Lists.newArrayList();
 
         product.setMenuCategory(this);
-        products.add(product);
+        
+        if(!products.contains(product)) products.add(product);
     }
 
     public String getSubheading() {
@@ -96,17 +97,11 @@ public class MenuCategory extends Entity {
         return name;
     }
 
-    public void removeProduct(int productId) {
+    // todo: improve design
+    public void removeProduct(Product product) {
         if (products == null || products.isEmpty()) return;
 
-        Iterator<Product> iterator = products.iterator();
-        while (iterator.hasNext()) {
-            Product next = iterator.next();
-            if (next.getId() == productId) {
-                iterator.remove();
-                return;
-            }
-        }
+        products.remove(product);
     }
 
     public boolean equals(Object o) {

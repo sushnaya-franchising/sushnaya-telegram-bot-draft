@@ -193,7 +193,7 @@ class StartupAdminKeyboardMarkupFactory implements AdminKeyboardMarkupFactory {
         ));
         keyboard.add(Lists.newArrayList(
                 new InlineKeyboardButton().setText(MESSAGES.deleteCategory())
-                        .setCallbackData(buildCommandUri(DELETE_CATEGORY, CATEGORY_ID_PARAM, categoryId))
+                        .setCallbackData(buildCommandUri(DELETE_CATEGORY, categoryId))
         ));
         keyboard.add(Lists.newArrayList(
                 new InlineKeyboardButton().setText(MESSAGES.backToEditMenu())
@@ -212,7 +212,7 @@ class StartupAdminKeyboardMarkupFactory implements AdminKeyboardMarkupFactory {
 
         keyboard.add(Lists.newArrayList(
                 new InlineKeyboardButton().setText(MESSAGES.deleteProduct())
-                        .setCallbackData(buildCommandUri(DELETE_PRODUCT, PRODUCT_ID_PARAM, productId))
+                        .setCallbackData(buildCommandUri(DELETE_PRODUCT, productId))
         ));
         keyboard.add(Lists.newArrayList(
                 new InlineKeyboardButton().setText(MESSAGES.backToEditCategory())

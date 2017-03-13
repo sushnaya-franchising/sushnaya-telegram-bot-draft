@@ -5,6 +5,7 @@ import com.sushnaya.telegrambot.Command;
 import com.sushnaya.telegrambot.SushnayaBot;
 import com.sushnaya.telegrambot.SushnayaBotUpdateHandler;
 import org.telegram.telegrambots.api.objects.Update;
+import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
 
 import java.util.List;
 
@@ -33,7 +34,7 @@ public class EditMenuHandler extends SushnayaBotUpdateHandler {
     private Menu getMenu(Update update) {
         Integer menuId = Command.parseCommandUriIntPayload(update);
 
-        return bot.getDataStorage().getMenu(menuId);
+        return menuId == null ? null : bot.getDataStorage().getMenu(menuId);
     }
 
     private void askMenuToEdit(Update update) {
@@ -52,8 +53,15 @@ public class EditMenuHandler extends SushnayaBotUpdateHandler {
         }
     }
 
-    private void editMenu(Update update, Menu menu) {
-        bot.answer(update, MESSAGES.menuSettings(menu),
-                bot.getAdminKeyboardFactory().editMenu(menu));
+    protected void editMenu(Update update, Menu menu) {
+        bot.answer(update, getEditMenuMessageText(menu), getEditMenuKeyboard(menu));
+    }
+
+    protected InlineKeyboardMarkup getEditMenuKeyboard(Menu menu) {
+        return bot.getAdminKeyboardFactory().editMenu(menu);
+    }
+
+    protected String getEditMenuMessageText(Menu menu) {
+        return MESSAGES.menuSettings(menu);
     }
 }

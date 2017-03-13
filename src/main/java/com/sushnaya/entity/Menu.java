@@ -25,12 +25,19 @@ public class Menu extends Entity {
         }
     }
 
+    // todo: fix design
+    public void removeCategory(MenuCategory category) {
+        if (menuCategories == null) return;
+
+        menuCategories.remove(category);
+    }
+
     public void addCategory(MenuCategory category) {
         if (menuCategories == null) menuCategories = Lists.newLinkedList();
 
         category.setMenu(this);
 
-        menuCategories.add(category);
+        if (!menuCategories.contains(category)) menuCategories.add(category);
     }
 
     public void removeCategory(int menuCategoryId) {
@@ -84,7 +91,7 @@ public class Menu extends Entity {
     }
 
     public List<MenuCategory> getCategoriesWithPublishedProducts() {
-        if(getCategories() == null) return null;
+        if (getCategories() == null) return null;
 
         return getCategories().stream().filter(MenuCategory::hasPublishedProducts)
                 .collect(Collectors.toList());
