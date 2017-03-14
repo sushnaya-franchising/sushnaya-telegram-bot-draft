@@ -12,7 +12,7 @@ import static com.sushnaya.telegrambot.SushnayaBot.MESSAGES;
 import static com.sushnaya.telegrambot.util.KeyboardMarkupUtil.addFirstButton;
 import static java.lang.String.format;
 
-public class DeleteMenuHandler extends DashboardHandler {
+public class DeleteMenuHandler extends AdminDashboardHandler {
 
     public DeleteMenuHandler(SushnayaBot bot) {
         super(bot);
@@ -26,6 +26,9 @@ public class DeleteMenuHandler extends DashboardHandler {
             deleteMenu(menu);
 
             answer(update, menu);
+
+        } else {
+            bot.handleUnknownCommand(update);
         }
     }
 

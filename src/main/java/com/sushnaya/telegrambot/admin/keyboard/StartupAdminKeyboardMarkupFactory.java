@@ -162,9 +162,7 @@ class StartupAdminKeyboardMarkupFactory implements AdminKeyboardMarkupFactory {
         List<List<InlineKeyboardButton>> keyboard = Lists.newArrayList();
         keyboard.add(Lists.newArrayList(
                 new InlineKeyboardButton().setText(MESSAGES.editCategory())
-                        .setCallbackData(buildCommandUri(EDIT_CATEGORY, MENU_ID_PARAM, menu.getId()))
-        ));
-        keyboard.add(Lists.newArrayList(
+                        .setCallbackData(buildCommandUri(EDIT_CATEGORY, MENU_ID_PARAM, menu.getId())),
                 new InlineKeyboardButton().setText(MESSAGES.createCategory())
                         .setCallbackData(buildCommandUri(CREATE_CATEGORY, menu.getId()))
         ));
@@ -194,21 +192,19 @@ class StartupAdminKeyboardMarkupFactory implements AdminKeyboardMarkupFactory {
 
         keyboard.add(Lists.newArrayList(
                 new InlineKeyboardButton().setText(MESSAGES.editProduct())
-                        .setCallbackData(buildCommandUri(EDIT_PRODUCT, CATEGORY_ID_PARAM, categoryId))
-        ));
-        keyboard.add(Lists.newArrayList(
+                        .setCallbackData(buildCommandUri(EDIT_PRODUCT, CATEGORY_ID_PARAM, categoryId)),
                 new InlineKeyboardButton().setText(MESSAGES.createProduct())
                         .setCallbackData(buildCommandUri(CREATE_PRODUCT, CATEGORY_ID_PARAM, categoryId))
         ));
         keyboard.add(Lists.newArrayList(
                 new InlineKeyboardButton().setText(MESSAGES.editCategoryName())
-                        .setCallbackData(buildCommandUri(EDIT_CATEGORY_NAME, categoryId)),
+                        .setCallbackData(buildCommandUri(SET_CATEGORY_NAME, categoryId)),
                 new InlineKeyboardButton().setText(MESSAGES.editCategoryPhoto())
-                        .setCallbackData(buildCommandUri(EDIT_CATEGORY_PHOTO, categoryId))
+                        .setCallbackData(buildCommandUri(SET_CATEGORY_PHOTO, categoryId))
         ));
         keyboard.add(Lists.newArrayList(
                 new InlineKeyboardButton().setText(MESSAGES.editCategorySubheading())
-                        .setCallbackData(buildCommandUri(EDIT_CATEGORY_SUBHEADING, categoryId)),
+                        .setCallbackData(buildCommandUri(SET_CATEGORY_SUBHEADING, categoryId)),
                 new InlineKeyboardButton().setText(MESSAGES.deleteCategory())
                         .setCallbackData(buildCommandUri(DELETE_CATEGORY, categoryId))
         ));
@@ -227,13 +223,31 @@ class StartupAdminKeyboardMarkupFactory implements AdminKeyboardMarkupFactory {
 
         keyboard.add(Lists.newArrayList(
                 new InlineKeyboardButton().setText(MESSAGES.editProductName())
-                        .setCallbackData(buildCommandUri(EDIT_PRODUCT_NAME, productId)),
-                new InlineKeyboardButton().setText(MESSAGES.editProductPhoto())
-                        .setCallbackData(buildCommandUri(EDIT_PRODUCT_PHOTO, productId))
+                        .setCallbackData(buildCommandUri(SET_PRODUCT_NAME, productId)),
+                new InlineKeyboardButton().setText(MESSAGES.editProductPrice())
+                        .setCallbackData(buildCommandUri(SET_PRODUCT_PRICE, productId))
         ));
         keyboard.add(Lists.newArrayList(
                 new InlineKeyboardButton().setText(MESSAGES.editProductSubheading())
-                        .setCallbackData(buildCommandUri(EDIT_PRODUCT_SUBHEADING, productId)),
+                        .setCallbackData(buildCommandUri(SET_PRODUCT_SUBHEADING, productId)),
+                new InlineKeyboardButton().setText(MESSAGES.editProductPhoto())
+                        .setCallbackData(buildCommandUri(SET_PRODUCT_PHOTO, productId))
+        ));
+        keyboard.add(Lists.newArrayList(
+                new InlineKeyboardButton().setText(MESSAGES.editProductDescription())
+                        .setCallbackData(buildCommandUri(SET_PRODUCT_DESCRIPTION, productId))
+        ));
+        keyboard.add(Lists.newArrayList(
+                new InlineKeyboardButton().setText(MESSAGES.editProductModifications())
+                        .setCallbackData(buildCommandUri(EDIT_PRODUCT_MODIFICATIONS, productId)),
+                new InlineKeyboardButton().setText(MESSAGES.editProductOptions())
+                        .setCallbackData(buildCommandUri(EDIT_PRODUCT_OPTIONS, productId))
+        ));
+        keyboard.add(Lists.newArrayList(
+                new InlineKeyboardButton().setText(product.isPublished() ?
+                        MESSAGES.hideProduct() : MESSAGES.editProductPublish())
+                        .setCallbackData(buildCommandUri(product.isPublished() ?
+                                HIDE_PRODUCT : PUBLISH_PRODUCT, productId)),
                 new InlineKeyboardButton().setText(MESSAGES.deleteProduct())
                         .setCallbackData(buildCommandUri(DELETE_PRODUCT, productId))
         ));

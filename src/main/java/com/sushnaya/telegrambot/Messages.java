@@ -668,4 +668,60 @@ public class Messages {
     public String editMenuAffiliates() {
         return messages.getString("edit_menu_affiliates");
     }
+
+    public String editProductPrice() {
+        return messages.getString("edit_product_price");
+    }
+
+    public String hideProduct() {
+        return messages.getString("hide_product");
+    }
+
+    public String editProductPublish() {
+        return messages.getString("edit_product.publish");
+    }
+
+    public String editProductModifications() {
+        return messages.getString("edit_product_modifications");
+    }
+
+    public String editProductOptions() {
+        return messages.getString("edit_product_options");
+    }
+
+    public String deleteProductSubheading() {
+        return messages.getString("delete_product_subheading");
+    }
+
+    public String productNameUpdateSucceeded() {
+        return messages.getString("product_name_update_succeeded");
+    }
+
+    public String productSubheadingUpdateSucceeded() {
+        return messages.getString("product_subheading_update_succeeded");
+    }
+
+    public String productPriceUpdateSucceeded() {
+        return messages.getString("product_price_update_succeeded");
+    }
+
+    public String productDescriptionUpdateSucceeded() {
+        return messages.getString("product_description_update_succeeded");
+    }
+
+    public String deleteProductDescription() {
+        return messages.getString("delete_product_description");
+    }
+
+    public String editProductDescription() {
+        return messages.getString("edit_product_description");
+    }
+
+    public String productPhotoUpdateSucceeded() {
+        return messages.getString("product_photo_update_succeeded");
+    }
+
+    public String deleteProductPhoto() {
+        return messages.getString("delete_product_photo");
+    }
 }

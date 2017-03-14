@@ -35,22 +35,26 @@ public enum Command {
     CATEGORY("/category"),
     CREATE_CATEGORY("/newcategory"),
     EDIT_CATEGORY("/editcategory"),
-    EDIT_CATEGORY_NAME("/editcategoryname"),
-    EDIT_CATEGORY_SUBHEADING("/editcategorysubheading"),
-    EDIT_CATEGORY_PHOTO("/editcategoryphoto"),
+    SET_CATEGORY_NAME("/setcategoryname"),
+    SET_CATEGORY_SUBHEADING("/setcategorysubheading"),
+    SET_CATEGORY_PHOTO("/setcategoryphoto"),
     DELETE_CATEGORY("/deletecategory"),
     RECOVER_CATEGORY("/recovercategory"),
     NEXT_PRODUCT_IN_CATEGORY("/nextproductincategory"),
     CREATE_PRODUCT("/newproduct"),
     EDIT_PRODUCT("/editproduct"),
     DELETE_PRODUCT("/deleteproduct"),
-    EDIT_PRODUCT_NAME("/editproductname"),
-    EDIT_PRODUCT_SUBHEADING("/editproductsubheading"),
-    EDIT_PRODUCT_PHOTO("/editproductphoto"),
-    RECOVER_PRODUCT("/recoverproduct"),
+    SET_PRODUCT_NAME("/setproductname"),
+    SET_PRODUCT_PRICE("/setproductprice"),
     SET_PRODUCT_SUBHEADING("/setproductsubheading"),
     SET_PRODUCT_DESCRIPTION("/setproductdescription"),
-    PUBLISH_PRODUCT("/publishproduct");
+    SET_PRODUCT_PHOTO("/setproductphoto"),
+    EDIT_PRODUCT_MODIFICATIONS("/editproductmodifications"),
+    EDIT_PRODUCT_OPTIONS("/editproductoptions"),
+    RECOVER_PRODUCT("/recoverproduct"),
+    HIDE_PRODUCT("/hideproduct"),
+    PUBLISH_PRODUCT("/publishproduct"),
+    DELETE_OPTIONAL_PROPERTY("/deleteoptionalproperty");
 
     private Function<String, String> textSupplier;
     private String uri;
@@ -120,7 +124,7 @@ public enum Command {
     public static Integer parseCommandUriIntPayload(Update update) {
         final ByteBuffer byteBuffer = parseCommandUriByteBufferPayload(update);
 
-        if (byteBuffer == null) return null;
+        if (byteBuffer == null || byteBuffer.remaining() < 4) return null;
 
         return byteBuffer.getInt();
     }

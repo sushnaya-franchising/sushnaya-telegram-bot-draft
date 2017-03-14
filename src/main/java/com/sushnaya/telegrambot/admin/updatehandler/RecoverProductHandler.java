@@ -3,7 +3,6 @@ package com.sushnaya.telegrambot.admin.updatehandler;
 import com.sushnaya.entity.MenuCategory;
 import com.sushnaya.entity.Product;
 import com.sushnaya.telegrambot.SushnayaBot;
-import com.sushnaya.telegrambot.SushnayaBotUpdateHandler;
 import org.telegram.telegrambots.api.objects.Update;
 
 import java.nio.ByteBuffer;
@@ -20,14 +19,16 @@ public class RecoverProductHandler extends EditCategoryHandler {
     @Override
     public void handle(Update update) {
         final ByteBuffer payload = parseCommandUriByteBufferPayload(update);
-
         final MenuCategory category = getMenuCategory(payload);
         final Integer productId = getProductId(payload);
 
-        if (category == null && productId == null) return;
+        if (category != null && productId != null){
+            final Product product = recoverProduct(productId);
+            answer(update, category, product);
 
-        final Product product = recoverProduct(productId);
-        answer(update, category, product);
+        } else {
+            bot.handleUnknownCommand(update);
+        }
     }
 
     private Product recoverProduct(int productId) {

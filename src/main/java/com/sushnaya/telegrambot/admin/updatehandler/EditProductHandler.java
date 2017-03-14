@@ -45,6 +45,9 @@ public class EditProductHandler extends SushnayaBotUpdateHandler {
         } else if (paramType == PRODUCT_ID_PARAM) {
             final Product product = getProduct(payload);
             editProduct(update, product);
+
+        } else {
+            bot.handleUnknownCommand(update);
         }
     }
 
@@ -123,7 +126,7 @@ public class EditProductHandler extends SushnayaBotUpdateHandler {
         }
     }
 
-    private void editProduct(Update update, Product product) {
+    protected void editProduct(Update update, Product product) {
         bot.answer(update, MESSAGES.productSettings(product),
                 bot.getAdminKeyboardFactory().editProduct(product));
     }

@@ -43,6 +43,9 @@ public class CreateProductHandler extends SushnayaBotUpdateHandler {
         } else if (paramType == CATEGORY_ID_PARAM) {
             final MenuCategory category = getCategory(payload);
             createProduct(update, category);
+
+        } else {
+            bot.handleUnknownCommand(update);
         }
     }
 

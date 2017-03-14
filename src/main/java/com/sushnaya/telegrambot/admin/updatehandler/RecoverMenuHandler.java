@@ -8,7 +8,7 @@ import static com.sushnaya.telegrambot.Command.parseCommandUriIntPayload;
 import static com.sushnaya.telegrambot.SushnayaBot.MESSAGES;
 import static java.lang.String.format;
 
-public class RecoverMenuHandler extends DashboardHandler {
+public class RecoverMenuHandler extends AdminDashboardHandler {
     public RecoverMenuHandler(SushnayaBot bot) {
         super(bot);
     }
@@ -21,6 +21,9 @@ public class RecoverMenuHandler extends DashboardHandler {
             final Menu menu = recoverMenu(menuId);
 
             answer(update, menu);
+
+        } else {
+            bot.handleUnknownCommand(update);
         }
     }
 

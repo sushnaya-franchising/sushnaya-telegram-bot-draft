@@ -4,8 +4,8 @@ import com.sushnaya.telegrambot.SushnayaBot;
 import com.sushnaya.telegrambot.SushnayaBotUpdateHandler;
 import org.telegram.telegrambots.api.objects.Update;
 
-public class CloneMenuHandler extends SushnayaBotUpdateHandler {
-    public CloneMenuHandler(SushnayaBot bot) {
+public class EditMenuDeliveryHandler extends SushnayaBotUpdateHandler {
+    public EditMenuDeliveryHandler(SushnayaBot bot) {
         super(bot);
     }
 

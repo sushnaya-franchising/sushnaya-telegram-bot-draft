@@ -19,14 +19,17 @@ public class RecoverCategoryHandler extends EditMenuHandler {
     @Override
     public void handle(Update update) {
         final ByteBuffer payload = parseCommandUriByteBufferPayload(update);
-
         final Menu menu = getMenu(payload);
         final Integer categoryId = getCategoryId(payload);
 
-        if (menu == null && categoryId == null) return;
+        if (menu != null && categoryId != null) {
+            final MenuCategory category = recoverCategory(categoryId);
+            answer(update, menu, category);
 
-        final MenuCategory category = recoverCategory(categoryId);
-        answer(update, menu, category);
+        } else {
+            bot.handleUnknownCommand(update);
+        }
+
     }
 
     private Menu getMenu(ByteBuffer payload) {

@@ -7,8 +7,8 @@ import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
 
 import static com.sushnaya.telegrambot.SushnayaBot.MESSAGES;
 
-public class DashboardHandler extends SushnayaBotUpdateHandler {
-    public DashboardHandler(SushnayaBot bot) {
+public class AdminDashboardHandler extends SushnayaBotUpdateHandler {
+    public AdminDashboardHandler(SushnayaBot bot) {
         super(bot);
     }
 

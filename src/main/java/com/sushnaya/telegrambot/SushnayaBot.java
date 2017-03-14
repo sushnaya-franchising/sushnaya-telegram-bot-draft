@@ -5,7 +5,6 @@ import com.sushnaya.entity.Coordinate;
 import com.sushnaya.entity.Locality;
 import com.sushnaya.entity.Menu;
 import com.sushnaya.entity.User;
-import com.sushnaya.telegrambot.admin.keyboard.AdminKeyboardFactoryProvider;
 import com.sushnaya.telegrambot.admin.keyboard.AdminKeyboardMarkupFactory;
 import com.sushnaya.telegrambot.admin.state.AdminDefaultState;
 import com.sushnaya.telegrambot.user.keyboard.UserKeyboardMarkupFactory;
@@ -195,6 +194,10 @@ public class SushnayaBot extends TelegramLongPollingBot {
         File file = getFile(getFileMethod);
 
         return file.getFilePath();
+    }
+
+    public void handleUnknownCommand(Update update) {
+        say(update, MESSAGES.userUnknownCommand());
     }
 
     public void say(Update update, String message) {

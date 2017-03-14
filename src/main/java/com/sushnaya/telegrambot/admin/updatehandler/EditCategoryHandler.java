@@ -43,6 +43,9 @@ public class EditCategoryHandler extends SushnayaBotUpdateHandler {
         } else if (paramType == CATEGORY_ID_PARAM) {
             final MenuCategory category = getCategory(payload);
             editCategory(update, category);
+
+        } else {
+            bot.handleUnknownCommand(update);
         }
     }
 
@@ -53,7 +56,7 @@ public class EditCategoryHandler extends SushnayaBotUpdateHandler {
     }
 
     private MenuCategory getCategory(ByteBuffer payload) {
-        final int categoryId= payload.getInt();
+        final int categoryId = payload.getInt();
 
         return bot.getDataStorage().getMenuCategory(categoryId);
     }

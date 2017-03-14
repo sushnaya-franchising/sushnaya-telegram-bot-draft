@@ -45,7 +45,7 @@ public abstract class AdminBotDialogState<R> extends BotState {
         registerUpdateHandler(START, cancelBefore(new AdminStartHandler(bot)));
         registerUpdateHandler(MENU, cancelBefore(new AdminMenuHandler(bot)));
         registerUpdateHandler(NEXT_PRODUCT_IN_CATEGORY, cancelBefore(new UserNextProductInCategoryHandler(bot)));
-        registerUpdateHandler(ADMIN_DASHBOARD, cancelBefore(new DashboardHandler(bot)));
+        registerUpdateHandler(ADMIN_DASHBOARD, cancelBefore(new AdminDashboardHandler(bot)));
         registerUpdateHandler(CREATE_MENU, cancelBefore(new CreateMenuHandler(bot)));
         registerUpdateHandler(CREATE_CATEGORY, cancelBefore(new CreateCategoryHandler(bot)));
         registerUpdateHandler(CREATE_PRODUCT, cancelBefore(new CreateProductHandler(bot)));
