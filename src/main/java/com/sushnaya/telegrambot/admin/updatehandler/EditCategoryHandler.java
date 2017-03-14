@@ -96,7 +96,7 @@ public class EditCategoryHandler extends SushnayaBotUpdateHandler {
         }
     }
 
-    private void editCategory(Update update, MenuCategory category) {
+    protected void editCategory(Update update, MenuCategory category) {
         bot.answer(update, getEditCategoryMessageText(category), getEditCategoryKeyboard(category));
     }
 

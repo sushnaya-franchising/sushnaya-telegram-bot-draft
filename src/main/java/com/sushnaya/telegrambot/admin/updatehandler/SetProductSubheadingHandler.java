@@ -22,7 +22,7 @@ public class SetProductSubheadingHandler extends EditProductHandler {
 
         if (product != null) {
             askProductSubheading(update, product)
-                    .then((u, subheading) -> updateProductDescription(u, product, subheading))
+                    .then((u, subheading) -> updateProductSubheading(u, product, subheading))
                     .ifThen(DELETE_OPTIONAL_PROPERTY, u -> deleteProductSubheading(u, product))
                     .onCancel(u -> adjustBotState(u, product));
 
@@ -37,10 +37,10 @@ public class SetProductSubheadingHandler extends EditProductHandler {
     }
 
     private void deleteProductSubheading(Update u, Product product) {
-        updateProductDescription(u, product, null);
+        updateProductSubheading(u, product, null);
     }
 
-    private void updateProductDescription(Update u, Product product, String subheading) {
+    private void updateProductSubheading(Update u, Product product, String subheading) {
         updateProductSubheading(product, subheading);
 
         bot.say(u, MESSAGES.productSubheadingUpdateSucceeded(), true);

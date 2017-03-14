@@ -724,4 +724,24 @@ public class Messages {
     public String deleteProductPhoto() {
         return messages.getString("delete_product_photo");
     }
+
+    public String categoryNameUpdateSucceeded() {
+        return messages.getString("category_name_update_succeeded");
+    }
+
+    public String deleteCategorySubheading() {
+        return messages.getString("delete_category_subheading");
+    }
+
+    public String categorySubheadingUpdateSucceeded() {
+        return messages.getString("category_subheading_update_succeeded");
+    }
+
+    public String deleteCategoryPhoto() {
+        return messages.getString("delete_category_photo");
+    }
+
+    public String categoryPhotoUpdateSucceeded() {
+        return messages.getString("category_photo_update_succeeded");
+    }
 }

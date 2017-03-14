@@ -20,32 +20,32 @@ public class SetProductNameHandler extends EditProductHandler {
 
         if (product != null) {
             askProductName(update).then((u, name) -> updateProductName(u, product, name))
-                    .onCancel(u -> adjustBotState(product, u));
+                    .onCancel(u -> adjustBotState(u, product));
 
         } else {
             bot.handleUnknownCommand(update);
         }
     }
 
-    public void updateProductName(Update u, Product product, String name) {
+    private void updateProductName(Update u, Product product, String name) {
         updateProductName(product, name);
 
         bot.say(u, MESSAGES.productNameUpdateSucceeded(), true);
 
-        adjustBotState(product, u);
+        adjustBotState(u, product);
     }
 
-    public void adjustBotState(Product product, Update u) {
+    private void adjustBotState(Update u, Product product) {
         bot.setAdminDefaultState(u);
         editProduct(u, product);
     }
 
-    public void updateProductName(Product product, String name) {
+    private void updateProductName(Product product, String name) {
         product.setName(name);
         bot.getDataStorage().saveProduct(product);
     }
 
-    public AdminBotDialogState<String> askProductName(Update update) {
+    private AdminBotDialogState<String> askProductName(Update update) {
         return new AskTextState(bot).ask(update, MESSAGES.askProductName(), true);
     }
 
