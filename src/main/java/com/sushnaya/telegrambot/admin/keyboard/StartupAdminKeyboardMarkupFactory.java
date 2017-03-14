@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import com.sushnaya.entity.Menu;
 import com.sushnaya.entity.MenuCategory;
 import com.sushnaya.entity.Product;
-import com.sushnaya.telegrambot.KeyboardFactoryProvider;
 import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardMarkup;
@@ -16,7 +15,10 @@ import java.util.List;
 import static com.sushnaya.telegrambot.Command.*;
 import static com.sushnaya.telegrambot.CommandUriParamType.CATEGORY_ID_PARAM;
 import static com.sushnaya.telegrambot.CommandUriParamType.MENU_ID_PARAM;
+import static com.sushnaya.telegrambot.CommandUriParamType.PRODUCT_ID_PARAM;
+import static com.sushnaya.telegrambot.KeyboardFactoryProvider.getUserKeyboardFactory;
 import static com.sushnaya.telegrambot.SushnayaBot.MESSAGES;
+import static com.sushnaya.telegrambot.util.KeyboardMarkupUtil.addFirstButton;
 import static com.sushnaya.telegrambot.util.KeyboardMarkupUtil.singleButtonOneTimeKeyboard;
 
 class StartupAdminKeyboardMarkupFactory implements AdminKeyboardMarkupFactory {
@@ -262,11 +264,20 @@ class StartupAdminKeyboardMarkupFactory implements AdminKeyboardMarkupFactory {
 
     @Override
     public InlineKeyboardMarkup menuCategoriesKeyboard(List<MenuCategory> categories) {
-        return KeyboardFactoryProvider.getUserKeyboardFactory().menuCategoriesKeyboard(categories);
+        return getUserKeyboardFactory().menuCategoriesKeyboard(categories);
     }
 
     @Override
     public InlineKeyboardMarkup menusKeyboard(List<Menu> menus) {
-        return KeyboardFactoryProvider.getUserKeyboardFactory().menusKeyboard(menus);
+        return getUserKeyboardFactory().menusKeyboard(menus);
+    }
+
+    @Override
+    public InlineKeyboardMarkup nextProductInCategoryKeyboard(Product product, int cursor, int productsCount) {
+        final InlineKeyboardMarkup keyboard = getUserKeyboardFactory().nextProductInCategoryKeyboard(
+                product, cursor, productsCount);
+
+        return addFirstButton(keyboard, MESSAGES.editProduct(),
+                buildCommandUri(EDIT_PRODUCT, PRODUCT_ID_PARAM, product.getId()));
     }
 }

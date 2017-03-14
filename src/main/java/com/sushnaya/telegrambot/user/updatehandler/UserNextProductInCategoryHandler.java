@@ -2,11 +2,7 @@ package com.sushnaya.telegrambot.user.updatehandler;
 
 import com.sushnaya.entity.MenuCategory;
 import com.sushnaya.entity.Product;
-import com.sushnaya.telegrambot.Command;
-import com.sushnaya.telegrambot.DataStorage;
-import com.sushnaya.telegrambot.SushnayaBot;
-import com.sushnaya.telegrambot.SushnayaBotUpdateHandler;
-import com.sushnaya.telegrambot.util.KeyboardMarkupUtil;
+import com.sushnaya.telegrambot.*;
 import org.telegram.telegrambots.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -15,7 +11,6 @@ import org.telegram.telegrambots.exceptions.TelegramApiException;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-import static com.sushnaya.telegrambot.Command.*;
 import static com.sushnaya.telegrambot.SushnayaBot.MESSAGES;
 import static com.sushnaya.telegrambot.util.UpdateUtil.getChatId;
 import static java.lang.String.format;
@@ -37,9 +32,12 @@ public class UserNextProductInCategoryHandler extends SushnayaBotUpdateHandler {
         final int cursor = payload.remaining() == 4 ? payload.getInt() : 0;
         final MenuCategory category = bot.getDataStorage().getMenuCategory(categoryId);
 
-        if (category == null) return;
+        if (category != null) {
+            showProduct(update, category, cursor);
 
-        showProduct(update, category, cursor);
+        } else {
+            bot.handleUnknownCommand(update);
+        }
     }
 
     private void showProduct(Update update, MenuCategory category, int cursor) {
@@ -48,9 +46,10 @@ public class UserNextProductInCategoryHandler extends SushnayaBotUpdateHandler {
 
         if (products == null || products.isEmpty()) {
             bot.revealMenu(update);
-        }
 
-        showProduct(update, products.get(0), cursor);
+        } else {
+            showProduct(update, products.get(0), cursor);
+        }
     }
 
     private void showProduct(Update update, Product product, int cursor) {
@@ -65,8 +64,9 @@ public class UserNextProductInCategoryHandler extends SushnayaBotUpdateHandler {
         final String subheading = product.getSubheading();
         final String message = (subheading == null ? heading :
                 format("%s\n\n%s", heading, subheading)) + "\n" + progressStr;
-        final InlineKeyboardMarkup keyboard = getNextProductKeyboard(
-                categoryId, cursor, productsCount);
+        final KeyboardMarkupFactory keyboardFactory = bot.getKeyboardFactory(update);
+        final InlineKeyboardMarkup keyboard = keyboardFactory.nextProductInCategoryKeyboard(
+                product, cursor, productsCount);
 
         if (product.hasTelegramPhotoFile()) {
             sendPhoto(bot, new SendPhoto()
@@ -80,22 +80,9 @@ public class UserNextProductInCategoryHandler extends SushnayaBotUpdateHandler {
     private void sendPhoto(SushnayaBot bot, SendPhoto sendPhoto) {
         try {
             bot.sendPhoto(sendPhoto);
+            
         } catch (TelegramApiException e) {
             e.printStackTrace();
-        }
-    }
-
-    private InlineKeyboardMarkup getNextProductKeyboard(int categoryId, int cursor, int productsCount) {
-        final int nextProductCursor = cursor + 1;
-
-        if (nextProductCursor >= productsCount) {
-            return KeyboardMarkupUtil.singleButtonInlineKeyboard(MESSAGES.menu(), MENU.getUri());
-
-        } else {
-            final String commandUri = buildCommandUri(NEXT_PRODUCT_IN_CATEGORY,
-                    categoryId, nextProductCursor);
-
-            return KeyboardMarkupUtil.singleButtonInlineKeyboard(MESSAGES.more(), commandUri);
         }
     }
 

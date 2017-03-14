@@ -86,9 +86,7 @@ public class DataStorage {
         saveMenu(peterMenu);
     }
 
-    public User getUserByTelegramId(Integer telegramId) {
-        if (telegramId == null) return null;
-
+    public User getUserByTelegramId(int telegramId) {
         return USERS_BY_TELEGRAM_ID.get(telegramId);
     }
 

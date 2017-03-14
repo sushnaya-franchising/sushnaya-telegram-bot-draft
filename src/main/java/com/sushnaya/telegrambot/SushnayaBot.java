@@ -61,6 +61,13 @@ public class SushnayaBot extends TelegramLongPollingBot {
         adminDefaultState = new AdminDefaultState(this);
     }
 
+    public KeyboardMarkupFactory getKeyboardFactory(Update update) {
+        final int telegramUserId = getTelegramUserId(update);
+        User user = dataStorage.getUserByTelegramId(telegramUserId);
+
+        return getKeyboardFactory(user);
+    }
+
     public KeyboardMarkupFactory getKeyboardFactory(User user) {
         return KeyboardFactoryProvider.getKeyboardFactory(user, this);
     }
@@ -154,6 +161,11 @@ public class SushnayaBot extends TelegramLongPollingBot {
     }
 
     public void handleCommand(Update update, Command command) {
+        if (command == NOP) {
+            handleUnknownCommand(update);
+            return;
+        }
+
         ensureBotState(getTelegramUserId(update)).handle(update, command);
     }
 

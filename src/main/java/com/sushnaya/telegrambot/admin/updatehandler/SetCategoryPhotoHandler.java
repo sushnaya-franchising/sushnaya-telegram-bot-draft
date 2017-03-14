@@ -53,7 +53,7 @@ public class SetCategoryPhotoHandler extends EditCategoryHandler {
         updateMenuCategoryPhoto(update, category, null);
     }
 
-    public AdminBotDialogState<String> askCategoryPhoto(Update update, MenuCategory category) {
+    private AdminBotDialogState<String> askCategoryPhoto(Update update, MenuCategory category) {
         final ReplyKeyboardMarkup keyboard = category.hasPhoto() ?
                 singleButtonOneTimeKeyboard(MESSAGES.deleteCategoryPhoto()) : null;
 
