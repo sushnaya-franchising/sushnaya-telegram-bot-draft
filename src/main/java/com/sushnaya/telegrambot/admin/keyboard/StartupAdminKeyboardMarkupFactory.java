@@ -14,7 +14,8 @@ import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardRow;
 import java.util.List;
 
 import static com.sushnaya.telegrambot.Command.*;
-import static com.sushnaya.telegrambot.CommandUriParamType.*;
+import static com.sushnaya.telegrambot.CommandUriParamType.CATEGORY_ID_PARAM;
+import static com.sushnaya.telegrambot.CommandUriParamType.MENU_ID_PARAM;
 import static com.sushnaya.telegrambot.SushnayaBot.MESSAGES;
 import static com.sushnaya.telegrambot.util.KeyboardMarkupUtil.singleButtonOneTimeKeyboard;
 
@@ -168,6 +169,14 @@ class StartupAdminKeyboardMarkupFactory implements AdminKeyboardMarkupFactory {
                         .setCallbackData(buildCommandUri(CREATE_CATEGORY, menu.getId()))
         ));
         keyboard.add(Lists.newArrayList(
+                new InlineKeyboardButton().setText(MESSAGES.editMenuAffiliates())
+                        .setCallbackData(buildCommandUri(EDIT_MENU_AFFILIATES, menu.getId())),
+                new InlineKeyboardButton().setText(MESSAGES.editMenuTermsOfDelivery())
+                        .setCallbackData(buildCommandUri(EDIT_MENU_DELIVERY, menu.getId()))
+        ));
+        keyboard.add(Lists.newArrayList(
+                new InlineKeyboardButton().setText(MESSAGES.cloneMenu())
+                        .setCallbackData(buildCommandUri(CLONE_MENU, menu.getId())),
                 new InlineKeyboardButton().setText(MESSAGES.deleteMenu())
                         .setCallbackData(buildCommandUri(DELETE_MENU, menu.getId()))
         ));
@@ -192,14 +201,20 @@ class StartupAdminKeyboardMarkupFactory implements AdminKeyboardMarkupFactory {
                         .setCallbackData(buildCommandUri(CREATE_PRODUCT, CATEGORY_ID_PARAM, categoryId))
         ));
         keyboard.add(Lists.newArrayList(
+                new InlineKeyboardButton().setText(MESSAGES.editCategoryName())
+                        .setCallbackData(buildCommandUri(EDIT_CATEGORY_NAME, categoryId)),
+                new InlineKeyboardButton().setText(MESSAGES.editCategoryPhoto())
+                        .setCallbackData(buildCommandUri(EDIT_CATEGORY_PHOTO, categoryId))
+        ));
+        keyboard.add(Lists.newArrayList(
+                new InlineKeyboardButton().setText(MESSAGES.editCategorySubheading())
+                        .setCallbackData(buildCommandUri(EDIT_CATEGORY_SUBHEADING, categoryId)),
                 new InlineKeyboardButton().setText(MESSAGES.deleteCategory())
                         .setCallbackData(buildCommandUri(DELETE_CATEGORY, categoryId))
         ));
         keyboard.add(Lists.newArrayList(
                 new InlineKeyboardButton().setText(MESSAGES.backToEditMenu())
-                        .setCallbackData(buildCommandUri(EDIT_MENU, category.getMenu().getId())),
-                new InlineKeyboardButton().setText(MESSAGES.backToDashboard())
-                        .setCallbackData(ADMIN_DASHBOARD.getUri())
+                        .setCallbackData(buildCommandUri(EDIT_MENU, category.getMenu().getId()))
         ));
 
         return new InlineKeyboardMarkup().setKeyboard(keyboard);
@@ -211,14 +226,21 @@ class StartupAdminKeyboardMarkupFactory implements AdminKeyboardMarkupFactory {
         final int productId = product.getId();
 
         keyboard.add(Lists.newArrayList(
+                new InlineKeyboardButton().setText(MESSAGES.editProductName())
+                        .setCallbackData(buildCommandUri(EDIT_PRODUCT_NAME, productId)),
+                new InlineKeyboardButton().setText(MESSAGES.editProductPhoto())
+                        .setCallbackData(buildCommandUri(EDIT_PRODUCT_PHOTO, productId))
+        ));
+        keyboard.add(Lists.newArrayList(
+                new InlineKeyboardButton().setText(MESSAGES.editProductSubheading())
+                        .setCallbackData(buildCommandUri(EDIT_PRODUCT_SUBHEADING, productId)),
                 new InlineKeyboardButton().setText(MESSAGES.deleteProduct())
                         .setCallbackData(buildCommandUri(DELETE_PRODUCT, productId))
         ));
         keyboard.add(Lists.newArrayList(
                 new InlineKeyboardButton().setText(MESSAGES.backToEditCategory())
-                        .setCallbackData(buildCommandUri(EDIT_CATEGORY, CATEGORY_ID_PARAM, product.getCategory().getId())),
-                new InlineKeyboardButton().setText(MESSAGES.backToDashboard())
-                        .setCallbackData(ADMIN_DASHBOARD.getUri())
+                        .setCallbackData(buildCommandUri(EDIT_CATEGORY, CATEGORY_ID_PARAM,
+                                product.getCategory().getId()))
         ));
 
         return new InlineKeyboardMarkup().setKeyboard(keyboard);

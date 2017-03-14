@@ -632,4 +632,40 @@ public class Messages {
     public String recoverProduct(Product product) {
         return format("recover_product", product.getDisplayName());
     }
+
+    public String cloneMenu() {
+        return messages.getString("clone_menu");
+    }
+
+    public String editMenuTermsOfDelivery() {
+        return messages.getString("edit_menu_terms_of_delivery");
+    }
+
+    public String editCategoryName() {
+        return messages.getString("edit_category_name");
+    }
+
+    public String editCategorySubheading() {
+        return messages.getString("edit_category_subheading");
+    }
+
+    public String editCategoryPhoto() {
+        return messages.getString("edit_category_photo");
+    }
+
+    public String editProductName() {
+        return messages.getString("edit_product_name");
+    }
+
+    public String editProductSubheading() {
+        return messages.getString("edit_product_subheading");
+    }
+
+    public String editProductPhoto() {
+        return messages.getString("edit_product_photo");
+    }
+
+    public String editMenuAffiliates() {
+        return messages.getString("edit_menu_affiliates");
+    }
 }

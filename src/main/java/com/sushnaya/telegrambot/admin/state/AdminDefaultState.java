@@ -30,5 +30,6 @@ public class AdminDefaultState extends BotState {
         registerUpdateHandler(RECOVER_MENU, new RecoverMenuHandler(bot));
         registerUpdateHandler(RECOVER_CATEGORY, new RecoverCategoryHandler(bot));
         registerUpdateHandler(RECOVER_PRODUCT, new RecoverProductHandler(bot));
+        registerUpdateHandler(CLONE_MENU, new CloneMenuHandler(bot));
     }
 }
